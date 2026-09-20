@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual de Python 🐍 — PyQuest</title>
+<style>
+  :root {
+    --bg1: #0f172a; --bg2: #1e1b4b;
+    --card: #1e293b; --code-bg: #0b1120;
+    --py-blue: #4b8bbe; --py-yellow: #ffd43b;
+    --green: #22c55e; --red: #ef4444;
+    --text: #f1f5f9; --muted: #94a3b8; --border: #334155;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 130px; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2) 60%, #312e81);
+    background-attachment: fixed;
+    color: var(--text); line-height: 1.7; padding-bottom: 60px;
+  }
+  #progress { position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--py-blue), var(--py-yellow), var(--green));
+    z-index: 100; }
+
+  header.top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(15,23,42,.95); backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border); padding: 10px 0;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
+  .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .logo { font-size: 1.25rem; font-weight: 800; }
+  .logo span { color: var(--py-yellow); }
+  .btn-back {
+    display: inline-block; text-decoration: none; font-weight: 700; font-size: .9rem;
+    background: var(--py-yellow); color: #1e293b; border-radius: 10px; padding: 8px 16px;
+  }
+  .btn-back:hover { filter: brightness(1.1); }
+  nav.chapters { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0 4px; scrollbar-width: thin; }
+  nav.chapters a {
+    flex: 0 0 auto; text-decoration: none; color: var(--text); font-size: .82rem; font-weight: 600;
+    background: rgba(255,255,255,.07); border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 999px; white-space: nowrap;
+  }
+  nav.chapters a:hover { border-color: var(--py-yellow); color: var(--py-yellow); }
+
+  .cover { text-align: center; padding: 50px 16px 20px; }
+  .cover .snake { font-size: 4rem; }
+  .cover h1 { font-size: 2.4rem; margin: 8px 0; }
+  .cover h1 span { color: var(--py-yellow); }
+  .cover p { color: var(--muted); font-size: 1.05rem; max-width: 640px; margin: 0 auto; }
+
+  .chapter {
+    background: rgba(30,41,59,.92); border: 1px solid var(--border);
+    border-radius: 18px; padding: 26px; margin: 22px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  .cap-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .cap-num {
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--py-blue), #2b5f8a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: 800;
+  }
+  .chapter h2 { font-size: 1.45rem; }
+  .chapter h3 { font-size: 1.1rem; margin: 20px 0 8px; color: var(--py-yellow); }
+  .chapter p { margin: 8px 0; color: #dbe3ef; }
+  .chapter ul, .chapter ol { margin: 8px 0 8px 22px; color: #dbe3ef; }
+  .chapter li { margin: 4px 0; }
+  code.inline, .chapter p code, .chapter li code, td code {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    background: rgba(255,255,255,.1); padding: 2px 7px; border-radius: 6px;
+    font-size: .9em; color: var(--py-yellow); white-space: nowrap;
+  }
+
+  pre.code {
+    position: relative; background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 14px; overflow-x: auto; margin: 10px 0;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: .92rem; line-height: 1.65; color: #e2e8f0;
+  }
+  pre.code .copy {
+    position: absolute; top: 8px; right: 8px; cursor: pointer;
+    background: rgba(255,255,255,.1); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 4px 10px; font-size: .75rem; font-family: inherit;
+  }
+  pre.code .copy:hover { background: rgba(255,255,255,.2); }
+  /* highlight */
+  .tok-k { color: #c792ea; font-weight: 700; }   /* keyword */
+  .tok-s { color: #9ece6a; }                     /* string */
+  .tok-c { color: #5c6a7d; font-style: italic; } /* comment */
+  .tok-n { color: #ff9e64; }                     /* number */
+  .tok-b { color: #7dcfff; }                     /* builtin */
+
+  .output {
+    background: #020617; border: 1px solid var(--border); border-left: 4px solid var(--green);
+    border-radius: 0 12px 12px 0; padding: 10px 14px; margin: -4px 0 10px;
+    font-family: ui-monospace, Consolas, monospace; font-size: .88rem;
+    white-space: pre-wrap; color: #cbd5e1;
+  }
+  .output::before { content: "▶ Salida"; display: block; font-size: .72rem; color: var(--green); font-weight: 800; margin-bottom: 4px; font-family: system-ui, sans-serif; }
+
+  .tip, .warn, .game-link { border-radius: 12px; padding: 12px 14px; margin: 12px 0; font-size: .93rem; }
+  .tip { background: rgba(75,139,190,.14); border: 1px solid var(--py-blue); }
+  .warn { background: rgba(239,68,68,.1); border: 1px solid var(--red); }
+  .game-link { background: rgba(255,212,59,.1); border: 1px solid var(--py-yellow); }
+  .game-link a { color: var(--py-yellow); font-weight: 700; }
+
+  table.ref { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: .9rem; }
+  table.ref th, table.ref td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+  table.ref th { background: rgba(255,255,255,.06); }
+  table.ref tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+
+  .cap-nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 18px; }
+  .cap-nav a {
+    text-decoration: none; color: var(--text); font-weight: 700; font-size: .9rem;
+    background: rgba(255,255,255,.07); border: 1px solid var(--border);
+    border-radius: 10px; padding: 9px 16px;
+  }
+  .cap-nav a:hover { border-color: var(--py-yellow); }
+
+  #toTop {
+    position: fixed; bottom: 20px; right: 20px; z-index: 60;
+    width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--card); color: var(--text); font-size: 1.2rem; cursor: pointer;
+    display: none; box-shadow: 0 6px 20px rgba(0,0,0,.4);
+  }
+  #toTop:hover { border-color: var(--py-yellow); }
+  footer { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 30px; }
+  footer a { color: var(--py-yellow); }
+  @media (max-width: 560px) {
+    .cover h1 { font-size: 1.8rem; }
+    .chapter { padding: 18px 14px; }
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="logo">🐍 Py<span>Quest</span> · Manual</div>
+      <a class="btn-back" href="index.html">🎮 Volver al juego</a>
+      <a class="btn-back" href="contacto.html" style="background:rgba(255,255,255,.08); border:1px solid var(--border); color:var(--text)">✉️ Contacto</a>
+    </div>
+    <nav class="chapters" id="toc"></nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="cover">
+    <div class="snake">📖</div>
+    <h1>Manual de <span>Python</span></h1>
+    <p>De cero a héroe: todo lo que necesitas para dominar los fundamentos de Python.
+    Este manual acompaña al juego <b>PyQuest</b> — cada capítulo indica en qué nivel lo practicas. 🎮</p>
+  </div>
+
+  <!-- ================= CAP 0 ================= -->
+  <section class="chapter" id="cap0">
+    <div class="cap-head"><span class="cap-num">📚</span><h2>Cómo usar este manual</h2></div>
+    <ul>
+      <li>Lee los capítulos <b>en orden</b>: cada uno usa lo aprendido en los anteriores.</li>
+      <li>Los bloques oscuros son <b>código Python</b> (pulsa <b>⧉ copiar</b> para probarlos).</li>
+      <li>Los bloques con borde verde muestran la <b>salida</b> del programa.</li>
+      <li>💡 = consejo · ⚠️ = error típico · 🎮 = nivel del juego donde lo practicas.</li>
+      <li>¿Quieres practicar en tu propio ordenador? Empieza por el capítulo <b>🖥️ Instala Python en tu PC</b>, justo aquí debajo.</li>
+    </ul>
+    <div class="tip">💡 <b>La regla de oro:</b> no aprendas Python solo leyendo. Escribe cada ejemplo, cámbialo, rómpelo y arréglalo. ¡Programar se aprende programando!</div>
+  </section>
+
+  <!-- ================= INSTALAR PYTHON ================= -->
+  <section class="chapter" id="cap-install">
+    <div class="cap-head"><span class="cap-num">🖥️</span><h2>Instala Python en tu PC</h2></div>
+    <p>¿Quieres escribir programas de verdad en tu ordenador? Solo necesitas 10 minutos:</p>
+    <h3>1️⃣ Instala Python</h3>
+    <ol>
+      <li>Entra en <b>python.org</b> → Descargas → descarga Python 3.</li>
+      <li>Instálalo. ⚠️ En Windows, marca la casilla <b>«Add python.exe to PATH»</b> antes de darle a Instalar.</li>
+      <li>Comprueba que funciona: abre una terminal y escribe <code>python --version</code>. Deberías ver algo como <code>Python 3.12.0</code>.</li>
+    </ol>
+    <h3>2️⃣ Instala un editor (VS Code)</h3>
+    <ol>
+      <li>Descarga <b>Visual Studio Code</b> (gratis) desde code.visualstudio.com.</li>
+      <li>Instala la extensión <b>Python</b> de Microsoft (pestaña de extensiones).</li>
+    </ol>
+    <h3>3️⃣ Tu primer archivo</h3>
+    <ol>
+      <li>Crea un archivo <code>hola.py</code> y escribe: <code>print("Hola desde mi PC")</code></li>
+      <li>Ejecútalo con el botón ▶ de VS Code o con <code>python hola.py</code> en la terminal.</li>
+    </ol>
+    <div class="tip">💡 A partir de aquí, prueba todos los ejemplos de este manual y los mini-proyectos del capítulo 13 en tu propio ordenador. ¡Ese es el verdadero siguiente nivel! 🚀</div>
+  </section>
+
+<div style="text-align:center; color:var(--py-yellow); font-weight:800; letter-spacing:3px; margin:36px 0 4px; font-size:.9rem;">📗 · PARTE 1 — FUNDAMENTOS ·</div>
+
+  <!-- ================= CAP 1 ================= -->
+  <section class="chapter" id="cap1">
+    <div class="cap-head"><span class="cap-num">1</span><h2>Tu primer programa</h2></div>
+    <p>Python es un lenguaje de programación famoso por ser <b>fácil de leer</b>: su código se parece al inglés. Se usa en videojuegos, inteligencia artificial, webs, ciencia y mucho más.</p>
+    <h3>🖨️ print(): mostrar cosas en pantalla</h3>
+    <p>La función <code>print()</code> muestra un mensaje. El texto (llamado <b>string</b>) va entre comillas:</p>
+    <pre class="code"><code>print("Hola, mundo")</code></pre>
+    <div class="output">Hola, mundo</div>
+    <p>Puedes usar comillas dobles <code>"..."</code> o simples <code>'...'</code>, ambas valen. También puedes imprimir números y varias cosas separadas por comas:</p>
+    <pre class="code"><code>print('Las comillas simples también sirven')
+print(42)
+print("Tengo", 25, "años")</code></pre>
+    <div class="output">Las comillas simples también sirven
+42
+Tengo 25 años</div>
+    <h3>💬 Comentarios: notas para humanos</h3>
+    <p>Todo lo que va después de <code>#</code> lo ignora Python. Sirve para explicar tu código:</p>
+    <pre class="code"><code># Esto es un comentario, Python lo ignora
+print("Esto sí se ejecuta")  # comentario al final de la línea</code></pre>
+    <div class="warn">⚠️ <b>Errores típicos:</b> <code>Print</code> con mayúscula falla (Python distingue mayúsculas), y olvidar un paréntesis o una comilla da <code>SyntaxError</code>.</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 1 «¡Hola, Mundo!»</div>
+  </section>
+
+  <!-- ================= CAP 2 ================= -->
+  <section class="chapter" id="cap2">
+    <div class="cap-head"><span class="cap-num">2</span><h2>Variables y tipos de datos</h2></div>
+    <p>Una <b>variable</b> es una caja con nombre donde guardas un valor para usarlo después. Se crea con el signo <code>=</code>:</p>
+    <pre class="code"><code>puntos = 100
+nombre = "Ada"
+print(puntos)
+print(nombre)</code></pre>
+    <div class="output">100
+Ada</div>
+    <div class="tip">💡 Nombra tus variables en minúsculas y con guion bajo: <code>puntos_totales</code>. No pueden empezar por número ni llevar espacios o tildes.</div>
+    <h3>📦 Los 4 tipos básicos</h3>
+    <table class="ref">
+      <tr><th>Tipo</th><th>Nombre</th><th>Ejemplo</th></tr>
+      <tr><td><code>int</code></td><td>Entero</td><td><code>5</code>, <code>-3</code>, <code>0</code></td></tr>
+      <tr><td><code>float</code></td><td>Decimal</td><td><code>3.14</code>, <code>-0.5</code></td></tr>
+      <tr><td><code>str</code></td><td>Texto</td><td><code>"hola"</code>, <code>'x'</code></td></tr>
+      <tr><td><code>bool</code></td><td>Verdadero/Falso</td><td><code>True</code>, <code>False</code></td></tr>
+    </table>
+    <p>La función <code>type()</code> revela el tipo de cualquier valor:</p>
+    <pre class="code"><code>print(type(3.14))
+print(type("hola"))</code></pre>
+    <div class="output">&lt;class 'float'&gt;
+&lt;class 'str'&gt;</div>
+    <h3>🔄 Convertir entre tipos</h3>
+    <pre class="code"><code>numero = int("42")      # texto → entero
+texto = str(100)        # entero → texto
+decimal = float("3.5")  # texto → decimal
+print(numero + 8)       # 50</code></pre>
+    <div class="output">50</div>
+    <div class="warn">⚠️ <code>"5" + 3</code> da error (<code>TypeError</code>): no puedes sumar texto y número. ¡Convierte primero!</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 2 «Caja de variables» y Nivel 3 «¿Qué tipo eres?»</div>
+  </section>
+
+  <!-- ================= CAP 3 ================= -->
+  <section class="chapter" id="cap3">
+    <div class="cap-head"><span class="cap-num">3</span><h2>Operadores</h2></div>
+    <h3>➕ Aritméticos</h3>
+    <table class="ref">
+      <tr><th>Operador</th><th>Significado</th><th>Ejemplo</th><th>Resultado</th></tr>
+      <tr><td><code>+</code></td><td>Suma</td><td><code>5 + 2</code></td><td>7</td></tr>
+      <tr><td><code>-</code></td><td>Resta</td><td><code>5 - 2</code></td><td>3</td></tr>
+      <tr><td><code>*</code></td><td>Multiplicación</td><td><code>5 * 2</code></td><td>10</td></tr>
+      <tr><td><code>/</code></td><td>División</td><td><code>5 / 2</code></td><td>2.5</td></tr>
+      <tr><td><code>//</code></td><td>División entera</td><td><code>7 // 2</code></td><td>3</td></tr>
+      <tr><td><code>%</code></td><td>Resto (módulo)</td><td><code>7 % 2</code></td><td>1</td></tr>
+      <tr><td><code>**</code></td><td>Potencia</td><td><code>2 ** 3</code></td><td>8</td></tr>
+    </table>
+    <div class="tip">💡 El módulo <code>%</code> es muy útil: <code>n % 2 == 0</code> detecta si <code>n</code> es par. ¡Lo usarás en el jefe final!</div>
+    <h3>⚖️ Comparación (devuelven True o False)</h3>
+    <table class="ref">
+      <tr><th>Operador</th><th>Significado</th><th>Ejemplo</th></tr>
+      <tr><td><code>==</code></td><td>Igual a</td><td><code>5 == 5</code> → True</td></tr>
+      <tr><td><code>!=</code></td><td>Distinto de</td><td><code>5 != 3</code> → True</td></tr>
+      <tr><td><code>&gt;</code> <code>&lt;</code></td><td>Mayor / menor</td><td><code>5 &gt; 3</code> → True</td></tr>
+      <tr><td><code>&gt;=</code> <code>&lt;=</code></td><td>Mayor/menor o igual</td><td><code>5 &gt;= 5</code> → True</td></tr>
+    </table>
+    <div class="warn">⚠️ ¡El error más famoso! Comparar es <code>==</code> (doble igual), asignar es <code>=</code> (uno solo).</div>
+    <h3>🔗 Lógicos: combinar condiciones</h3>
+    <pre class="code"><code>edad = 20
+tiene_entrada = True
+print(edad >= 18 and tiene_entrada)  # True: ambas se cumplen
+print(edad < 18 or tiene_entrada)    # True: al menos una se cumple
+print(not tiene_entrada)             # False: invierte el valor</code></pre>
+    <div class="output">True
+True
+False</div>
+    <h3>⚡ Atajos de asignación</h3>
+    <pre class="code"><code>puntos = 10
+puntos += 5   # igual que: puntos = puntos + 5
+puntos -= 3   # igual que: puntos = puntos - 3
+puntos *= 2
+print(puntos)  # 24</code></pre>
+    <div class="output">24</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 5 «El guardián if», Nivel 8 «Cuenta atrás» y Nivel 16 (jefe final)</div>
+  </section>
+
+  <!-- ================= CAP 4 ================= -->
+  <section class="chapter" id="cap4">
+    <div class="cap-head"><span class="cap-num">4</span><h2>Textos: strings en profundidad</h2></div>
+    <p>Los strings sirven para mucho más que saludar. Puedes unirlos, repetirlos y medirlos:</p>
+    <pre class="code"><code>saludo = "Hola, " + "Ada"   # concatenar
+eco = "ja" * 3               # repetir
+print(saludo)
+print(eco)
+print(len(saludo))           # longitud: nº de caracteres</code></pre>
+    <div class="output">Hola, Ada
+jajaja
+10</div>
+    <h3>🧰 Métodos útiles (van con punto)</h3>
+    <table class="ref">
+      <tr><th>Método</th><th>Hace</th><th>Ejemplo</th></tr>
+      <tr><td><code>.upper()</code></td><td>Mayúsculas</td><td><code>"hola".upper()</code> → HOLa… <b>HOLA</b></td></tr>
+      <tr><td><code>.lower()</code></td><td>Minúsculas</td><td><code>"HoLa".lower()</code> → hola</td></tr>
+      <tr><td><code>.strip()</code></td><td>Quita espacios de los bordes</td><td><code>"  x  ".strip()</code> → x</td></tr>
+      <tr><td><code>.replace(a, b)</code></td><td>Sustituye texto</td><td><code>"hola".replace("o","0")</code> → h0la</td></tr>
+      <tr><td><code>.split(sep)</code></td><td>Divide en lista</td><td><code>"a,b".split(",")</code> → ['a', 'b']</td></tr>
+    </table>
+    <p>Y con <code>in</code> puedes comprobar si un texto contiene otro:</p>
+    <pre class="code"><code>print("n" in "python")   # True
+print("x" in "python")   # False</code></pre>
+    <div class="output">True
+False</div>
+    <h3>✨ f-strings: mezclar texto y variables</h3>
+    <p>Pon una <code>f</code> antes de las comillas y mete variables entre <code>{llaves}</code>:</p>
+    <pre class="code"><code>nombre = "Ada"
+puntos = 150
+mensaje = f"Hola, {nombre}. Tienes {puntos} puntos."
+print(mensaje)</code></pre>
+    <div class="output">Hola, Ada. Tienes 150 puntos.</div>
+    <h3>⌨️ input(): pedir datos al usuario</h3>
+    <p><code>input()</code> pausa el programa y espera que escribas algo. ⚠️ ¡Siempre devuelve <b>texto</b>! Convierte a número si lo necesitas:</p>
+    <pre class="code"><code>nombre = input("¿Cómo te llamas? ")
+edad = int(input("¿Cuántos años tienes? "))
+print(f"Hola {nombre}, el año que viene tendrás {edad + 1}")</code></pre>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 4 «Mensajes mágicos» y Nivel 17 «Grito de guerra»</div>
+  </section>
+
+  <!-- ================= CAP 5 ================= -->
+  <section class="chapter" id="cap5">
+    <div class="cap-head"><span class="cap-num">5</span><h2>Decisiones: if, elif, else</h2></div>
+    <p>Con <code>if</code> tu programa <b>decide</b>: ejecuta un bloque de código solo si la condición es verdadera.</p>
+    <pre class="code"><code>edad = 18
+if edad >= 18:
+    print("Puedes entrar")
+    print("¡Bienvenido!")</code></pre>
+    <div class="output">Puedes entrar
+¡Bienvenido!</div>
+    <div class="warn">⚠️ Dos reglas de oro: el <code>if</code> termina con <b>dos puntos :</b> y el bloque va <b>indentado</b> (4 espacios). Sin eso, Python se queja.</div>
+    <h3>🔀 Varios caminos: elif y else</h3>
+    <pre class="code"><code>puntos = 75
+if puntos >= 90:
+    print("A")
+elif puntos >= 60:
+    print("B")
+else:
+    print("C")</code></pre>
+    <div class="output">B</div>
+    <p>Python prueba las ramas <b>en orden</b> y ejecuta solo la <b>primera</b> que sea verdadera. <code>else</code> es el plan B: se ejecuta si nada anterior cumplió.</p>
+    <div class="tip">💡 Puedes poner <code>if</code> dentro de otro <code>if</code> (anidados), pero no abuses: más de 2 niveles se vuelve difícil de leer.</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 5 «El guardián if» y Nivel 6 «El examen de notas»</div>
+  </section>
+
+  <!-- ================= CAP 6 ================= -->
+  <section class="chapter" id="cap6">
+    <div class="cap-head"><span class="cap-num">6</span><h2>Bucles: for y while</h2></div>
+    <p>Los bucles <b>repiten</b> código sin que tengas que escribirlo mil veces.</p>
+    <h3>🔁 for: repetir un nº conocido de veces</h3>
+    <p>El compañero inseparable del <code>for</code> es <code>range()</code>, que genera secuencias de números:</p>
+    <pre class="code"><code>for i in range(3):
+    print(i)</code></pre>
+    <div class="output">0
+1
+2</div>
+    <div class="warn">⚠️ ¡Ojo! <code>range(3)</code> genera <b>0, 1, 2</b>: empieza en 0 y <b>excluye</b> el final. Es la trampa más clásica.</div>
+    <table class="ref">
+      <tr><th>Uso</th><th>Genera</th></tr>
+      <tr><td><code>range(5)</code></td><td>0, 1, 2, 3, 4</td></tr>
+      <tr><td><code>range(2, 6)</code></td><td>2, 3, 4, 5</td></tr>
+      <tr><td><code>range(0, 10, 2)</code></td><td>0, 2, 4, 6, 8 (de 2 en 2)</td></tr>
+    </table>
+    <p>El <code>for</code> también recorre textos y listas directamente:</p>
+    <pre class="code"><code>for letra in "hola":
+    print(letra)</code></pre>
+    <div class="output">h
+o
+l
+a</div>
+    <h3>⏳ while: repetir MIENTRAS se cumpla algo</h3>
+    <pre class="code"><code>n = 3
+while n > 0:
+    print(n)
+    n -= 1
+print("¡Despegue!")</code></pre>
+    <div class="output">3
+2
+1
+¡Despegue!</div>
+    <div class="warn">⚠️ Si la condición del <code>while</code> nunca se vuelve <code>False</code>, el bucle es <b>infinito</b> y el programa se cuelga. Asegúrate de que algo cambie en cada vuelta (aquí, <code>n -= 1</code>).</div>
+    <h3>🛑 break y continue</h3>
+    <ul>
+      <li><code>break</code> → sale del bucle inmediatamente.</li>
+      <li><code>continue</code> → salta a la siguiente vuelta.</li>
+    </ul>
+    <pre class="code"><code>for i in range(10):
+    if i == 3:
+        break
+    print(i)</code></pre>
+    <div class="output">0
+1
+2</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 7 «El bucle infinito… o no», Nivel 8 «Cuenta atrás» y Nivel 20 «El contador de vocales»</div>
+  </section>
+
+  <!-- ================= CAP 7 ================= -->
+  <section class="chapter" id="cap7">
+    <div class="cap-head"><span class="cap-num">7</span><h2>Listas</h2></div>
+    <p>Una <b>lista</b> guarda varios valores ordenados entre corchetes <code>[ ]</code>:</p>
+    <pre class="code"><code>frutas = ["manzana", "banana", "cereza"]
+print(frutas)
+print(len(frutas))  # cuántos elementos hay</code></pre>
+    <div class="output">['manzana', 'banana', 'cereza']
+3</div>
+    <h3>🎯 Índices: acceder a un elemento</h3>
+    <p>Cada posición tiene un número… ¡que empieza en <b>0</b>! Y los negativos cuentan desde el final:</p>
+    <pre class="code"><code>frutas = ["manzana", "banana", "cereza"]
+print(frutas[0])   # primero
+print(frutas[1])   # segundo
+print(frutas[-1])  # último</code></pre>
+    <div class="output">manzana
+banana
+cereza</div>
+    <div class="tip">💡 También puedes cortar trozos (slicing): <code>frutas[0:2]</code> → los dos primeros. El final se excluye, como en <code>range()</code>.</div>
+    <h3>🧰 Métodos más usados</h3>
+    <table class="ref">
+      <tr><th>Método</th><th>Hace</th></tr>
+      <tr><td><code>.append(x)</code></td><td>Añade <code>x</code> al final</td></tr>
+      <tr><td><code>.insert(i, x)</code></td><td>Inserta <code>x</code> en la posición <code>i</code></td></tr>
+      <tr><td><code>.remove(x)</code></td><td>Elimina la primera aparición de <code>x</code></td></tr>
+      <tr><td><code>.pop()</code></td><td>Saca y devuelve el último elemento</td></tr>
+      <tr><td><code>.sort()</code></td><td>Ordena la lista</td></tr>
+      <tr><td><code>.reverse()</code></td><td>Invierte el orden</td></tr>
+      <tr><td><code>.count(x)</code> / <code>.index(x)</code></td><td>Cuenta apariciones / busca la posición</td></tr>
+    </table>
+    <pre class="code"><code>nums = [3, 1, 2]
+nums.append(4)
+nums.sort()
+print(nums)
+print(2 in nums)  # ¿está el 2? → True</code></pre>
+    <div class="output">[1, 2, 3, 4]
+True</div>
+    <h3>🔁 Recorrer una lista</h3>
+    <pre class="code"><code>frutas = ["manzana", "banana", "cereza"]
+for f in frutas:
+    print(f"Hola, {f}")</code></pre>
+    <div class="output">Hola, manzana
+Hola, banana
+Hola, cereza</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 9 «La lista del tesoro», Nivel 10 «Añade al cofre» y Nivel 12 «Ordena el hechizo» y Nivel 18 «El corte perfecto»</div>
+  </section>
+
+  <!-- ================= CAP 8 ================= -->
+  <section class="chapter" id="cap8">
+    <div class="cap-head"><span class="cap-num">8</span><h2>Tuplas y conjuntos</h2></div>
+    <h3>🔒 Tuplas: listas que no cambian</h3>
+    <p>Van entre paréntesis <code>( )</code>. Una vez creadas, <b>no se pueden modificar</b>. Ideales para datos fijos (coordenadas, días…):</p>
+    <pre class="code"><code>punto = (10, 20)
+print(punto[0])  # 10
+# punto[0] = 99  → ¡ERROR! Las tuplas son inmutables</code></pre>
+    <div class="output">10</div>
+    <h3>🎲 Sets (conjuntos): sin repetidos ni orden</h3>
+    <p>Van entre llaves <code>{ }</code>. Eliminan duplicados automáticamente:</p>
+    <pre class="code"><code>colores = {"rojo", "azul", "rojo"}
+print(colores)  # {'rojo', 'azul'} → ¡sin repetidos!
+colores.add("verde")
+print("azul" in colores)  # True</code></pre>
+    <div class="output">{'rojo', 'azul'}
+True</div>
+    <div class="tip">💡 Truco famoso: <code>list(set([1, 2, 2, 3]))</code> → <code>[1, 2, 3]</code>. ¡Así se quitan duplicados de una lista!</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 19 «Sin repetidos»</div>
+  </section>
+
+  <!-- ================= CAP 9 ================= -->
+  <section class="chapter" id="cap9">
+    <div class="cap-head"><span class="cap-num">9</span><h2>Diccionarios</h2></div>
+    <p>Un <b>diccionario</b> guarda pares <b>clave → valor</b> entre llaves. Perfecto para fichas y datos con nombre:</p>
+    <pre class="code"><code>jugador = {"nombre": "Ada", "nivel": 5, "vidas": 3}
+print(jugador["nombre"])
+print(jugador["nivel"])</code></pre>
+    <div class="output">Ada
+5</div>
+    <h3>✏️ Añadir, cambiar y leer con seguridad</h3>
+    <pre class="code"><code>jugador = {"nombre": "Ada", "nivel": 5}
+jugador["nivel"] = 6       # modificar
+jugador["puntos"] = 100    # añadir nuevo par
+print(jugador.get("vidas", 0))  # .get: si no existe, devuelve 0 (sin error)
+print("nivel" in jugador)       # True</code></pre>
+    <div class="output">0
+True</div>
+    <div class="warn">⚠️ <code>jugador["vidas"]</code> daría <code>KeyError</code> si la clave no existe. Usa <code>.get(clave, valor_por_defecto)</code> para evitar sustos.</div>
+    <h3>🔁 Recorrer un diccionario</h3>
+    <pre class="code"><code>notas = {"mat": 9, "lengua": 7}
+for materia, nota in notas.items():
+    print(f"{materia}: {nota}")</code></pre>
+    <div class="output">mat: 9
+lengua: 7</div>
+    <div class="tip">💡 <code>.keys()</code> da las claves, <code>.values()</code> los valores y <code>.items()</code> los pares. <code>len()</code> cuenta cuántos pares hay.</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 11 «El diccionario secreto» y Nivel 23 «Invitados VIP»</div>
+  </section>
+
+  <!-- ================= CAP 10 ================= -->
+  <section class="chapter" id="cap10">
+    <div class="cap-head"><span class="cap-num">10</span><h2>Funciones</h2></div>
+    <p>Una <b>función</b> es un bloque reutilizable: recibe datos (<b>parámetros</b>), trabaja y puede <b>devolver</b> un resultado. Se crea con <code>def</code>:</p>
+    <pre class="code"><code>def saludar(nombre):
+    return f"Hola, {nombre}"
+
+print(saludar("Ada"))
+print(saludar("Pip"))</code></pre>
+    <div class="output">Hola, Ada
+Hola, Pip</div>
+    <h3>🖨️ return vs print (¡importantísimo!)</h3>
+    <ul>
+      <li><code>print()</code> → <b>muestra</b> algo en pantalla (para humanos). No sirve para calcular.</li>
+      <li><code>return</code> → <b>devuelve</b> un valor que el programa puede seguir usando.</li>
+    </ul>
+    <pre class="code"><code>def doble(x):
+    return x * 2
+
+resultado = doble(5) + doble(3)
+print(resultado)  # 10 + 6 = 16</code></pre>
+    <div class="output">16</div>
+    <h3>⚙️ Varios parámetros y valores por defecto</h3>
+    <pre class="code"><code>def area(base, altura=1):  # altura vale 1 si no la pasas
+    return base * altura
+
+print(area(5, 3))  # 15
+print(area(5))     # 5</code></pre>
+    <div class="output">15
+5</div>
+    <div class="tip">💡 Las variables creadas <b>dentro</b> de una función solo existen ahí dentro (ámbito local). Si las necesitas fuera, devuélvelas con <code>return</code>.</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 13 «La máquina de saludar», Nivel 14 «El doble misterio», Nivel 22 «Potencia flexible» y Nivel 24 «⚔️ El Guardián del Vacío»</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 32 «La función infinita» (*args)</div>
+  </section>
+
+  <!-- ================= CAP 11 ================= -->
+  <section class="chapter" id="cap11">
+    <div class="cap-head"><span class="cap-num">11</span><h2>Comprensión de listas</h2></div>
+    <p>La forma <b>pitónica</b> de crear listas en una sola línea. En vez de esto:</p>
+    <pre class="code"><code>cuadrados = []
+for x in range(5):
+    cuadrados.append(x ** 2)</code></pre>
+    <p>…escribes esto (hace exactamente lo mismo):</p>
+    <pre class="code"><code>cuadrados = [x ** 2 for x in range(5)]
+print(cuadrados)</code></pre>
+    <div class="output">[0, 1, 4, 9, 16]</div>
+    <p>La fórmula es <code>[expresión for variable in iterable]</code>. ¡Y puedes añadir un filtro <code>if</code>!</p>
+    <pre class="code"><code>pares = [x for x in range(10) if x % 2 == 0]
+print(pares)</code></pre>
+    <div class="output">[0, 2, 4, 6, 8]</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 15 «Magia en una línea»</div>
+  </section>
+
+  <!-- ================= CAP 12 ================= -->
+  <section class="chapter" id="cap12">
+    <div class="cap-head"><span class="cap-num">12</span><h2>Errores y debugging 🐛</h2></div>
+    <p>Todos los programadores cometen errores. La diferencia es que los buenos saben <b>leerlos</b>. Cuando Python falla, muestra un <b>Traceback</b>: léelo <b>de abajo hacia arriba</b>. La última línea dice qué pasó y dónde:</p>
+    <pre class="code"><code>print(nombre)
+# NameError: name 'nombre' is not defined. Did you mean: 'nombrar'?</code></pre>
+    <h3>🚨 Los 6 errores más comunes</h3>
+    <table class="ref">
+      <tr><th>Error</th><th>Significa</th><th>Causa típica</th></tr>
+      <tr><td><code>SyntaxError</code></td><td>Código mal escrito</td><td>Falta <code>:</code>, un paréntesis o una comilla</td></tr>
+      <tr><td><code>IndentationError</code></td><td>Indentación incorrecta</td><td>Bloque sin sangrar o mezclando espacios y tabulador</td></tr>
+      <tr><td><code>NameError</code></td><td>Nombre desconocido</td><td>Variable con errata o usada antes de crearla</td></tr>
+      <tr><td><code>TypeError</code></td><td>Tipos incompatibles</td><td><code>"5" + 3</code> (texto + número)</td></tr>
+      <tr><td><code>IndexError</code></td><td>Índice fuera de rango</td><td>Lista de 3 elementos y pides <code>[5]</code></td></tr>
+      <tr><td><code>ValueError</code></td><td>Valor inadecuado</td><td><code>int("hola")</code>: no se puede convertir</td></tr>
+    </table>
+    <h3>🛡️ try/except: atrapar errores</h3>
+    <p>Con <code>try</code> puedes <b>atrapar</b> un error para que el programa no se cuelgue:</p>
+    <pre class="code"><code>try:
+    numero = int("hola")
+    print("Todo bien")
+except ValueError:
+    print("¡Error atrapado!")</code></pre>
+    <div class="output">¡Error atrapado!</div>
+    <p>Si el código del <code>try</code> falla, Python salta al <code>except</code> y el programa <b>sigue vivo</b>.</p>
+    <h3>🔍 Técnicas de detective</h3>
+    <ol>
+      <li><b>Lee el mensaje completo:</b> dice la línea exacta del fallo.</li>
+      <li><b>Imprime sospechosos:</b> mete <code>print(variable)</code> para ver qué vale en cada punto.</li>
+      <li><b>Comenta por partes:</b> desactiva medio código con <code>#</code> para aislar el problema.</li>
+      <li><b>Revisa lo clásico:</b> ¿falta un <code>:</code>? ¿un <code>==</code>? ¿la indentación?</li>
+    </ol>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 16 «¡Depura el código!», Nivel 21 «Red de seguridad» y el 👾 JEFE FINAL «El Archivero Supremo» (Nivel 33) — ¡pon a prueba todo esto!</div>
+  </section>
+
+  <!-- ================= CAP 13 ================= -->
+  <section class="chapter" id="cap13">
+    <div class="cap-head"><span class="cap-num">13</span><h2>Mini-proyectos: ¡a programar!</h2></div>
+    <p>Ya conoces la teoría. Ahora úsalo todo junto con estos 3 programas completos. Cópialos, ejecútalos y modifícalos. 🚀</p>
+    <h3>🎲 1. Adivina el número</h3>
+    <p>Usa: <code>import</code>, <code>while</code>, <code>if/elif/else</code>, <code>input()</code>, <code>break</code>.</p>
+    <pre class="code"><code>import random
+
+secreto = random.randint(1, 10)
+intentos = 0
+print("Adivina el número (del 1 al 10)")
+
+while True:
+    numero = int(input("Tu número: "))
+    intentos += 1
+    if numero == secreto:
+        print(f"¡Correcto! Lo lograste en {intentos} intentos.")
+        break
+    elif numero < secreto:
+        print("Demasiado bajo…")
+    else:
+        print("Demasiado alto…")</code></pre>
+    <h3>🧮 2. Calculadora</h3>
+    <p>Usa: <code>input()</code>, conversiones, <code>if/elif/else</code>.</p>
+    <pre class="code"><code>a = float(input("Primer número: "))
+op = input("Operación (+, -, *, /): ")
+b = float(input("Segundo número: "))
+
+if op == "+":
+    print(a + b)
+elif op == "-":
+    print(a - b)
+elif op == "*":
+    print(a * b)
+elif op == "/":
+    print(a / b)
+else:
+    print("Operación no válida")</code></pre>
+    <h3>✅ 3. Lista de tareas</h3>
+    <p>Usa: listas, <code>.append()</code>, <code>for</code>, <code>while True</code>, f-strings.</p>
+    <pre class="code"><code>tareas = []
+
+while True:
+    print("\n1. Añadir  2. Ver  3. Salir")
+    opcion = input("Elige: ")
+    if opcion == "1":
+        tareas.append(input("Nueva tarea: "))
+        print("¡Añadida!")
+    elif opcion == "2":
+        if not tareas:
+            print("(sin tareas)")
+        for i in range(len(tareas)):
+            print(f"{i + 1}. {tareas[i]}")
+    elif opcion == "3":
+        print("¡Hasta luego!")
+        break
+    else:
+        print("Opción no válida")</code></pre>
+    <div class="tip">💡 <b>Retos extra:</b> añade a la calculadora la potencia <code>**</code> · haz que «Adivina el número» tenga máximo 3 intentos · permite borrar tareas con <code>.pop()</code>.</div>
+  </section>
+
+<div style="text-align:center; color:var(--py-yellow); font-weight:800; letter-spacing:3px; margin:36px 0 4px; font-size:.9rem;">📘 · PARTE 2 — SUBE DE NIVEL ·</div>
+
+  <!-- ================= POO ================= -->
+  <section class="chapter" id="cap-poo">
+    <div class="cap-head"><span class="cap-num">14</span><h2>Programación orientada a objetos (POO)</h2></div>
+    <p>Hasta ahora usabas datos sueltos. La <b>POO</b> te permite crear tus propios <b>tipos de datos</b> que juntan datos y acciones. La idea en una frase:</p>
+    <ul>
+      <li>🏗️ <b>Clase</b> = el plano (ej: «coche»).</li>
+      <li>🚗 <b>Objeto</b> = lo construido con el plano (ej: «mi coche rojo»).</li>
+    </ul>
+    <h3>🏗️ Crear una clase y objetos</h3>
+    <pre class="code"><code>class Perro:
+    def __init__(self, nombre):
+        self.nombre = nombre
+
+mi_perro = Perro("Toby")
+print(mi_perro.nombre)</code></pre>
+    <div class="output">Toby</div>
+    <ul>
+      <li><code>class Perro:</code> define el plano.</li>
+      <li><code>__init__</code> es el <b>constructor</b>: se ejecuta solo al crear el objeto.</li>
+      <li><code>self</code> representa <b>al propio objeto</b> («yo mismo»). <code>self.nombre = nombre</code> guarda el dato dentro del objeto.</li>
+      <li><code>Perro("Toby")</code> construye un objeto; <code>mi_perro.nombre</code> lee su dato con un punto.</li>
+    </ul>
+    <h3>⚙️ Métodos: lo que sabe hacer un objeto</h3>
+    <p>Un <b>método</b> es una función dentro de la clase. Siempre recibe <code>self</code> como primer parámetro:</p>
+    <pre class="code"><code>class Coche:
+    def __init__(self, marca):
+        self.marca = marca
+
+    def arrancar(self):
+        return "Coche en marcha"
+
+mi_coche = Coche("Tesla")
+print(mi_coche.arrancar())</code></pre>
+    <div class="output">Coche en marcha</div>
+    <h3>👯 Cada objeto tiene sus propios datos</h3>
+    <pre class="code"><code>class Robot:
+    energia = 100
+
+r1 = Robot()
+r2 = Robot()
+r1.energia = 50
+print(r1.energia, r2.energia)</code></pre>
+    <div class="output">50 100</div>
+    <p>Cambiar un dato de <code>r1</code> <b>no afecta</b> a <code>r2</code>: cada objeto vive su propia vida. Por eso la POO es perfecta para videojuegos (jugadores, enemigos…), cada uno con su energía, posición, etc.</p>
+    <div class="warn">⚠️ Los nombres de clase empiezan por <b>mayúscula</b> por convención: <code>Perro</code>, <code>Coche</code>. Y no olvides el <code>self</code>: ¡casi todos los errores POO de principiantes son por eso!</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Niveles 25 «Tu primer objeto», 26 «El constructor», 27 «Dale vida con métodos» y 28 «Cada objeto, su vida»</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 31 «Hijos con superpoderes» (herencia)</div>
+  </section>
+
+
+
+  <!-- ================= MÓDULOS ================= -->
+  <section class="chapter" id="cap-modulos">
+    <div class="cap-head"><span class="cap-num">15</span><h2>Módulos, pip y librerías 📦</h2></div>
+    <p>¿Para qué reinventar la rueda? Un <b>módulo</b> es código que escribió otra persona y que puedes usar con <code>import</code>. Python trae cientos («baterías incluidas») y hay millones más en internet.</p>
+    <h3>📥 import: dos formas</h3>
+    <pre class="code"><code>import random              # 1. el módulo entero
+print(random.randint(1, 10))
+
+from random import choice  # 2. solo lo que necesitas
+print(choice(["cara", "cruz"]))</code></pre>
+    <h3>🎲 El módulo random</h3>
+    <table class="ref">
+      <tr><th>Función</th><th>Hace</th></tr>
+      <tr><td><code>randint(a, b)</code></td><td>Entero al azar entre <code>a</code> y <code>b</code> (<b>ambos incluidos</b>)</td></tr>
+      <tr><td><code>choice(lista)</code></td><td>Elige un elemento al azar</td></tr>
+      <tr><td><code>shuffle(lista)</code></td><td>Mezcla la lista (la modifica)</td></tr>
+    </table>
+    <h3>📅 Otro ejemplo: fechas</h3>
+    <pre class="code"><code>from datetime import date
+hoy = date.today()
+print(hoy)       # ej: 2026-09-21
+print(hoy.year)  # 2026</code></pre>
+    <h3>🌍 pip: la tienda de módulos</h3>
+    <p>¿Necesitas algo que Python no trae (como <code>telebot</code> para el bot)? Se instala con <code>pip</code> en la terminal:</p>
+    <pre class="code"><code>pip install pyTelegramBotAPI
+pip list   # ver lo instalado</code></pre>
+    <div class="tip">💡 Ya usaste módulos sin darte cuenta: <code>random</code> en el taller del bot 🤖 y <code>telebot</code> (instalado con pip). ¡Gran parte de programar es combinar piezas de otros!</div>
+    <div class="warn">⚠️ Instala solo módulos conocidos y necesarios. Y ojo: los <code>import</code> van <b>arriba del archivo</b>, antes de tu código.</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 30 «Poderes prestados»</div>
+  </section>
+
+  <!-- ================= NIVEL 2 ================= -->
+  <section class="chapter" id="cap-nivel2">
+    <div class="cap-head"><span class="cap-num">16</span><h2>Sube de nivel: herencia y *args 🚀</h2></div>
+    <h3>👪 Herencia: clases hijas</h3>
+    <p>Una clase puede <b>heredar</b> de otra: la hija recibe todo del padre gratis y puede mejorarlo. Se indica con paréntesis:</p>
+    <pre class="code"><code>class Animal:
+    def __init__(self, nombre):
+        self.nombre = nombre
+
+class Perro(Animal):  # Perro hereda de Animal
+    def hablar(self):
+        return "¡Guau!"
+
+p = Perro("Toby")
+print(p.nombre)   # heredado del padre
+print(p.hablar()) # propio del hijo</code></pre>
+    <div class="output">Toby
+¡Guau!</div>
+    <p>Si la hija redefine un método del padre, se usa el suyo (<b>override</b>). Y con <code>super()</code> puedes llamar al método del padre desde la hija.</p>
+    <h3>📦 *args: infinitos argumentos</h3>
+    <p>Con <code>*args</code> una función acepta <b>tantos argumentos como quieras</b>: Python los empaqueta en una tupla:</p>
+    <pre class="code"><code>def sumar_todo(*numeros):
+    return sum(numeros)
+
+print(sumar_todo(1, 2, 3, 4))  # 10
+print(sumar_todo(5, 5))        # 10</code></pre>
+    <div class="output">10
+10</div>
+    <p>Su primo <code>**kwargs</code> hace lo mismo con argumentos <b>con nombre</b>, empaquetados en un diccionario:</p>
+    <pre class="code"><code>def ficha(**datos):
+    for clave, valor in datos.items():
+        print(f"{clave}: {valor}")
+
+ficha(nombre="Ada", nivel=5)</code></pre>
+    <div class="output">nombre: Ada
+nivel: 5</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 31 «Hijos con superpoderes» y Nivel 32 «La función infinita»</div>
+  </section>
+
+<div style="text-align:center; color:var(--py-yellow); font-weight:800; letter-spacing:3px; margin:36px 0 4px; font-size:.9rem;">🔨 · PARTE 3 — PROYECTOS ·</div>
+
+  <!-- ================= TU PRIMERA APP ================= -->
+  <section class="chapter" id="cap-app">
+    <div class="cap-head"><span class="cap-num">17</span><h2>Tu primera app: lista de tareas ✅</h2></div>
+    <p>Es hora de juntarlo TODO en un programa de verdad: una app de lista de tareas con menú, funciones y <b>guardado en archivo</b>. Si aún no tienes Python en tu PC, mira primero el capítulo <b>🖥️ Instala Python en tu PC</b>.</p>
+    <h3>🧩 Las 4 piezas de (casi) toda app</h3>
+    <table class="ref">
+      <tr><th>Pieza</th><th>En nuestra app</th></tr>
+      <tr><td>💾 <b>Datos</b></td><td>Lista de diccionarios: <code>{"texto": ..., "hecha": ...}</code></td></tr>
+      <tr><td>⚙️ <b>Lógica</b></td><td>Funciones: mostrar, añadir, completar, borrar</td></tr>
+      <tr><td>🖥️ <b>Interfaz</b></td><td>Menú con <code>while</code> + <code>input()</code></td></tr>
+      <tr><td>💿 <b>Guardado</b></td><td>Archivo <code>tareas.txt</code> (¡lo nuevo de este capítulo!)</td></tr>
+    </table>
+    <h3>📄 Lo nuevo: archivos</h3>
+    <p>Con <code>open()</code> tu programa lee y escribe archivos. Siempre con <code>with</code> (se cierra solo) y <code>encoding="utf-8"</code> (para tildes y emojis):</p>
+    <pre class="code"><code># Escribir (modo "w" = write: crea el archivo o lo vacía)
+with open("tareas.txt", "w", encoding="utf-8") as f:
+    f.write("[ ] Comprar pan\n")
+    f.write("[x] Estudiar Python\n")
+
+# Leer (modo "r" = read)
+with open("tareas.txt", "r", encoding="utf-8") as f:
+    for linea in f:
+        print(linea.strip())</code></pre>
+    <div class="output">[ ] Comprar pan
+[x] Estudiar Python</div>
+    <table class="ref">
+      <tr><th>Modo</th><th>Significa</th></tr>
+      <tr><td><code>"r"</code></td><td><b>Read</b>: leer (falla si no existe → atrápalo con <code>try/except FileNotFoundError</code>)</td></tr>
+      <tr><td><code>"w"</code></td><td><b>Write</b>: escribir (crea el archivo o <b>borra</b> lo que había)</td></tr>
+      <tr><td><code>"a"</code></td><td><b>Append</b>: añadir al final sin borrar</td></tr>
+    </table>
+    <div class="warn">⚠️ El modo <code>"w"</code> <b>vacía el archivo</b> al abrirlo. Por eso nuestra app carga todo en memoria al empezar y guarda todo junto al salir.</div>
+    <h3>🔨 Constrúyela conmigo, paso a paso</h3>
+    <p>He preparado un <b>taller interactivo</b>: verás una demo funcionando, construirás la app en 6 pasos con mini-retos y al final descargarás tu <code>mis_tareas.py</code> listo para ejecutar.</p>
+    <div style="text-align:center; margin:14px 0"><a class="btn-back" href="taller.html" style="font-size:1.05rem; padding:12px 26px">🔨 Ir al taller: construye tu primera app</a></div>
+    <h3>📦 El código completo (para curiosos)</h3>
+    <p>Si prefieres ver el resultado final antes de empezar, aquí está <code>mis_tareas.py</code> entero:</p>
+    <pre class="code" id="app-full-code"><code># mis_tareas.py — ¡Mi primera app! 🎉
+
+ARCHIVO = "tareas.txt"
+
+
+def cargar_tareas():
+    tareas = []
+    try:
+        with open(ARCHIVO, "r", encoding="utf-8") as f:
+            for linea in f:
+                linea = linea.strip()
+                if linea:
+                    hecha = linea.startswith("[x]")
+                    texto = linea[3:].strip()
+                    tareas.append({"texto": texto, "hecha": hecha})
+    except FileNotFoundError:
+        pass  # primera vez: aún no hay archivo
+    return tareas
+
+
+def guardar_tareas(tareas):
+    with open(ARCHIVO, "w", encoding="utf-8") as f:
+        for t in tareas:
+            marca = "[x]" if t["hecha"] else "[ ]"
+            f.write(f"{marca} {t['texto']}\n")
+
+
+def mostrar_tareas(tareas):
+    if not tareas:
+        print("(sin tareas)")
+        return
+    for i in range(len(tareas)):
+        marca = "✓" if tareas[i]["hecha"] else "○"
+        print(f"{i + 1}. [{marca}] {tareas[i]['texto']}")
+
+
+def pedir_numero(texto, maximo):
+    while True:
+        try:
+            n = int(input(texto))
+            if 1 &lt;= n &lt;= maximo:
+                return n
+            print(f"Escribe un número del 1 al {maximo}.")
+        except ValueError:
+            print("Eso no es un número, prueba otra vez.")
+
+
+def main():
+    tareas = cargar_tareas()
+    print("=== MIS TAREAS ✅ ===")
+    while True:
+        print("\n1. Ver  2. Añadir  3. Completar  4. Borrar  5. Salir")
+        opcion = input("Elige: ")
+        if opcion == "1":
+            mostrar_tareas(tareas)
+        elif opcion == "2":
+            texto = input("Nueva tarea: ").strip()
+            if texto:
+                tareas.append({"texto": texto, "hecha": False})
+                print("¡Añadida!")
+        elif opcion == "3":
+            if not tareas:
+                print("(sin tareas)")
+            else:
+                mostrar_tareas(tareas)
+                n = pedir_numero("¿Cuál completaste? ", len(tareas))
+                tareas[n - 1]["hecha"] = True
+                print("¡Bien hecho! 🎉")
+        elif opcion == "4":
+            if not tareas:
+                print("(sin tareas)")
+            else:
+                mostrar_tareas(tareas)
+                n = pedir_numero("¿Cuál borras? ", len(tareas))
+                borrada = tareas.pop(n - 1)
+                print(f"Borrada: {borrada['texto']}")
+        elif opcion == "5":
+            guardar_tareas(tareas)
+            print("¡Hasta luego! Tus tareas están a salvo. 💾")
+            break
+        else:
+            print("Opción no válida.")
+
+
+main()</code></pre>
+    <h3>▶️ Cómo ejecutarla</h3>
+    <ol>
+      <li>Guarda el código en un archivo llamado <code>mis_tareas.py</code>.</li>
+      <li>Abre una terminal en esa carpeta y escribe <code>python mis_tareas.py</code> (o ábrelo en VS Code y pulsa ▶).</li>
+      <li>Usa el menú: añade tareas, complétalas, sal… ¡y vuelve a entrar! Tus tareas seguirán ahí gracias a <code>tareas.txt</code>. 💾</li>
+    </ol>
+    <h3>🚀 Retos de ampliación</h3>
+    <ol>
+      <li><b>Contador:</b> al salir, muestra «Te quedan X pendientes» (cuenta las de <code>hecha == False</code>).</li>
+      <li><b>Editar:</b> añade la opción 6 para cambiar el texto de una tarea.</li>
+      <li><b>Limpiar hechas:</b> opción que borre de golpe todas las completadas (pista: comprensión con <code>if</code>).</li>
+      <li><b>Prioridades:</b> guarda también una prioridad ⭐ y ordénalas.</li>
+      <li><b>¡Sueña!</b> ¿Y si fuera una app de notas, de gastos o de contraseñas? La estructura es la misma.</li>
+    </ol>
+    <div class="tip">💡 Cuando domines esta app, ya sabes hacer programas que <b>guardan datos</b>. Tus próximos mundos por conquistar: interfaces con ventanas (<b>CustomTkinter</b>), webs (<b>Flask</b>). ¡Y ya tienes un <b>taller para crear bots</b> 🤖!</div>
+    <div class="game-link">🎮 <b>En PyQuest:</b> Nivel 29 «Escribir en piedra»</div>
+  </section>
+
+  <!-- ================= TU PRIMER BOT ================= -->
+  <section class="chapter" id="cap-bot">
+    <div class="cap-head"><span class="cap-num">18</span><h2>Tu primer bot de Telegram 🤖</h2></div>
+    <p>Vamos a crear un bot que vive en Telegram: responde a comandos (<code>/start</code>, <code>/dado</code>…), juega, suma y guarda notas. ¡Y hablarás con él desde tu móvil!</p>
+    <h3>🤖 1. Crea tu bot con BotFather (5 min)</h3>
+    <ol>
+      <li>Abre Telegram y busca <b>@BotFather</b> (el verificado ✓).</li>
+      <li>Envíale <code>/newbot</code> y sigue sus preguntas: nombre y <b>usuario terminado en <code>bot</code></b> (ej: <code>mi_primer_bot_123_bot</code>).</li>
+      <li>Te dará un <b>token</b> (algo como <code>123456:ABC-DEF...</code>). ¡Cópialo!</li>
+      <li>Abre tu bot (te da un enlace <code>t.me/...</code>) y pulsa <b>Iniciar</b>.</li>
+    </ol>
+    <div class="warn">⚠️ El token es la <b>contraseña</b> de tu bot: quien la tenga lo controla. No lo publiques ni lo subas a internet.</div>
+    <h3>📦 2. Instala la librería</h3>
+    <p>En una terminal escribe: <code>pip install pyTelegramBotAPI</code>. En tu código se importa como <code>telebot</code>.</p>
+    <h3>🧠 3. La idea: decoradores que escuchan</h3>
+    <p>Tu bot es un programa que <b>pregunta sin parar</b> «¿hay mensajes nuevos?» (<code>bot.infinity_polling()</code>). Con <b>decoradores</b> (esas líneas con <code>@</code>) dices qué función responde a cada cosa:</p>
+    <pre class="code"><code>import telebot
+
+bot = telebot.TeleBot("TU_TOKEN")
+
+@bot.message_handler(commands=["start"])  # ← cuando escriban /start…
+def saludar(mensaje):                     # …se ejecuta esta función
+    bot.reply_to(mensaje, "¡Hola! 🎉")
+
+bot.infinity_polling()  # ← escuchar sin parar</code></pre>
+    <p>Cada <code>mensaje</code> trae datos útiles: <code>mensaje.text</code> (lo escrito) y <code>mensaje.chat.id</code> (quién lo escribe).</p>
+    <h3>🔨 Constrúyelo conmigo</h3>
+    <p>En el <b>taller interactivo</b> lo montamos en 5 pasos: primero <b>chatea con una demo</b>, luego añade comandos, juegos y memoria, y descarga tu <code>mi_bot.py</code> final.</p>
+    <div style="text-align:center; margin:14px 0"><a class="btn-back" href="taller-bot.html" style="font-size:1.05rem; padding:12px 26px">🤖 Ir al taller: construye tu primer bot</a></div>
+    <h3>📦 El código completo</h3>
+    <pre class="code" id="bot-full-code"><code># mi_bot.py — ¡Mi primer bot de Telegram! 🤖
+import random
+import telebot
+
+TOKEN = "PON_AQUI_TU_TOKEN"
+bot = telebot.TeleBot(TOKEN)
+
+notas = {}  # chat_id -&gt; lista de notas
+
+
+@bot.message_handler(commands=["start"])
+def saludar(mensaje):
+    bot.reply_to(mensaje, "¡Hola! Soy tu primer bot 🎉\nEscribe /ayuda para ver lo que sé hacer.")
+
+
+@bot.message_handler(commands=["ayuda"])
+def ayuda(mensaje):
+    bot.reply_to(mensaje,
+        "Puedo hacer esto:\n"
+        "/start - Saludarme\n"
+        "/ayuda - Ver esta ayuda\n"
+        "/dado - Tirar un dado 🎲\n"
+        "/suma 5 3 - Sumar números ➕\n"
+        "/nota comprar pan - Guardar una nota 📝\n"
+        "/notas - Ver tus notas\n"
+        "Y si me hablas… ¡te respondo! 💬")
+
+
+@bot.message_handler(commands=["dado"])
+def dado(mensaje):
+    numero = random.randint(1, 6)
+    bot.reply_to(mensaje, f"🎲 ¡Un {numero}!")
+
+
+@bot.message_handler(commands=["suma"])
+def suma(mensaje):
+    try:
+        partes = mensaje.text.split()
+        a = float(partes[1])
+        b = float(partes[2])
+        bot.reply_to(mensaje, f"➕ {a} + {b} = {a + b}")
+    except (IndexError, ValueError):
+        bot.reply_to(mensaje, "Úsalo así: /suma 5 3")
+
+
+@bot.message_handler(commands=["nota"])
+def guardar_nota(mensaje):
+    texto = mensaje.text.replace("/nota", "", 1).strip()
+    if not texto:
+        bot.reply_to(mensaje, "Escribe algo: /nota comprar pan")
+        return
+    chat = mensaje.chat.id
+    if chat not in notas:
+        notas[chat] = []
+    notas[chat].append(texto)
+    bot.reply_to(mensaje, f"📝 Nota guardada ({len(notas[chat])} en total).")
+
+
+@bot.message_handler(commands=["notas"])
+def ver_notas(mensaje):
+    chat = mensaje.chat.id
+    if chat not in notas or not notas[chat]:
+        bot.reply_to(mensaje, "(sin notas)")
+        return
+    lineas = [f"{i + 1}. {n}" for i, n in enumerate(notas[chat])]
+    bot.reply_to(mensaje, "📝 Tus notas:\n" + "\n".join(lineas))
+
+
+@bot.message_handler(func=lambda m: not m.text.startswith("/"), content_types=["text"])
+def responder(mensaje):
+    texto = mensaje.text.lower()
+    if "hola" in texto:
+        bot.reply_to(mensaje, "¡Hola, humano! 👋")
+    elif "python" in texto:
+        bot.reply_to(mensaje, "¡Python es el mejor lenguaje! 🐍")
+    elif "gracias" in texto:
+        bot.reply_to(mensaje, "¡De nada! 😊")
+    else:
+        bot.reply_to(mensaje, f"Me has dicho: {mensaje.text}")
+
+
+print("Bot en marcha… 🤖")
+bot.infinity_polling()</code></pre>
+    <h3>▶️ Cómo ponerlo en marcha</h3>
+    <ol>
+      <li>Pega tu token en <code>TOKEN = "..."</code> y guarda como <code>mi_bot.py</code>.</li>
+      <li>Ejecuta <code>python mi_bot.py</code> y <b>deja la terminal abierta</b> (si la cierras, el bot se duerme 😴).</li>
+      <li>Habla con tu bot en Telegram: <code>/start</code>, <code>/dado</code>, <code>/suma 5 3</code>…</li>
+    </ol>
+    <h3>🚀 Retos de ampliación</h3>
+    <ol>
+      <li><b>/moneda:</b> cara o cruz con <code>random.choice(["cara", "cruz"])</code>.</li>
+      <li><b>/chiste:</b> guarda una lista de chistes y envía uno al azar.</li>
+      <li><b>Notas eternas:</b> guárdalas en un archivo (¡como en el taller de la app!).</li>
+      <li><b>Más charla:</b> responde a «adiós», «quién eres» o tu nombre.</li>
+    </ol>
+  </section>
+
+
+
+
+
+  <!-- ================= TU PRIMERA WEB ================= -->
+  <section class="chapter" id="cap-web">
+    <div class="cap-head"><span class="cap-num">19</span><h2>Tu primera web con Flask 🌐</h2></div>
+    <p>Vamos a crear un <b>muro de mensajes</b> que funciona en el navegador: Python con <b>Flask</b> escucha peticiones y responde páginas. ¡El salto de programas para ti a apps para el mundo!</p>
+    <h3>🧠 La idea en 30 segundos</h3>
+    <ul>
+      <li>Tu programa es un <b>servidor</b>: escucha en <code>localhost:5000</code> («mi PC, puerta 5000»).</li>
+      <li>Cada <code>@app.route(...)</code> es una <b>dirección</b>: al visitarla, se ejecuta su función y devuelve una página.</li>
+      <li>El diseño vive en <b>plantillas</b> (<code>templates/</code>) con huecos <code>{{ ... }}</code> que Python rellena.</li>
+      <li>Los <b>formularios</b> envían datos (<code>POST</code>) que lees con <code>request.form</code>.</li>
+    </ul>
+    <h3>📦 Instalación y hola mundo</h3>
+    <p>En una terminal: <code>pip install flask</code>. Y esto ya es una web:</p>
+    <pre class="code"><code>from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def inicio():
+    return "&lt;h1&gt;¡Mi primera web con Python! 🐍&lt;/h1&gt;"
+
+if __name__ == "__main__":
+    app.run(debug=True)</code></pre>
+    <p>Ejecuta <code>python app.py</code>, abre <code>localhost:5000</code>… ¡ahí está! 🎉 (<code>debug=True</code> recarga solo al guardar; se para con <code>Ctrl + C</code>.)</p>
+    <h3>🔨 Constrúyela conmigo</h3>
+    <p>En el <b>taller interactivo</b> la montamos en 5 pasos: <b>pruébala en un navegador simulado</b>, añade rutas, plantillas, formularios y borrado, y descarga los archivos finales.</p>
+    <div style="text-align:center; margin:14px 0"><a class="btn-back" href="taller-web.html" style="font-size:1.05rem; padding:12px 26px">🌐 Ir al taller: construye tu primera web</a></div>
+    <h3>📦 El código completo</h3>
+    <p>Estructura: <code>app.py</code> + carpeta <code>templates/</code> con <code>index.html</code> dentro.</p>
+    <p><b><code>app.py</code>:</b></p>
+    <pre class="code" id="web-app-code"><code># app.py — ¡Mi primera web con Flask! 🌐
+from flask import Flask, render_template, request, redirect
+
+app = Flask(__name__)
+
+MENSAJES = ["¡Bienvenido al muro! 🎉"]
+
+
+@app.route("/")
+def inicio():
+    return render_template("index.html", mensajes=MENSAJES)
+
+
+@app.route("/saludo/&lt;nombre&gt;")
+def saludo(nombre):
+    return f"&lt;h1&gt;¡Hola, {nombre}! 👋&lt;/h1&gt;&lt;p&gt;&lt;a href='/'&gt;Volver al muro&lt;/a&gt;&lt;/p&gt;"
+
+
+@app.route("/nuevo", methods=["POST"])
+def nuevo():
+    texto = request.form.get("texto", "").strip()
+    if texto:
+        MENSAJES.append(texto)
+    return redirect("/")
+
+
+@app.route("/borrar/&lt;int:indice&gt;", methods=["POST"])
+def borrar(indice):
+    if 0 &lt;= indice &lt; len(MENSAJES):
+        MENSAJES.pop(indice)
+    return redirect("/")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)</code></pre>
+    <p><b><code>templates/index.html</code>:</b></p>
+    <pre class="code" id="web-template-code"><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;title&gt;📌 Muro de mensajes&lt;/title&gt;
+&lt;style&gt;
+  body { font-family: system-ui, sans-serif; background: #0f172a; color: #f1f5f9; max-width: 600px; margin: 40px auto; padding: 0 16px; }
+  h1 { color: #ffd43b; }
+  .msg { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 10px 14px; margin: 8px 0; display: flex; justify-content: space-between; gap: 10px; }
+  form.add { display: flex; gap: 8px; margin: 16px 0; }
+  input[type=text] { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0b1120; color: white; }
+  button { cursor: pointer; border: none; border-radius: 8px; padding: 10px 16px; font-weight: bold; background: #ffd43b; }
+  button.del { background: #ef4444; color: white; padding: 6px 12px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;📌 Muro de mensajes&lt;/h1&gt;
+  &lt;form class="add" action="/nuevo" method="post"&gt;
+    &lt;input type="text" name="texto" placeholder="Escribe un mensaje…" maxlength="140"&gt;
+    &lt;button&gt;Añadir&lt;/button&gt;
+  &lt;/form&gt;
+  {% for m in mensajes %}
+  &lt;div class="msg"&gt;
+    &lt;span&gt;{{ m }}&lt;/span&gt;
+    &lt;form action="/borrar/{{ loop.index0 }}" method="post"&gt;
+      &lt;button class="del"&gt;✕&lt;/button&gt;
+    &lt;/form&gt;
+  &lt;/div&gt;
+  {% endfor %}
+  &lt;p&gt;Prueba también: &lt;a href="/saludo/Ana" style="color:#ffd43b"&gt;/saludo/Ana&lt;/a&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+    <h3>▶️ Cómo ejecutarla y publicarla</h3>
+    <ol>
+      <li>Crea la carpeta <code>mi_web</code> con los dos archivos y ejecuta <code>python app.py</code>.</li>
+      <li>Abre <code>localhost:5000</code>. ¡Tu web vive! 🎉</li>
+      <li>Para que la vea todo el mundo, súbela a un hosting gratuito (<b>Render</b>, <b>PythonAnywhere</b>…): cada uno tiene su guía paso a paso.</li>
+    </ol>
+    <h3>🚀 Retos de ampliación</h3>
+    <ol>
+      <li><b>Memoria:</b> guarda los mensajes en un archivo para no perderlos al reiniciar.</li>
+      <li><b>API JSON:</b> crea <code>/api/mensajes</code> que devuelva la lista con <code>jsonify</code>.</li>
+      <li><b>Más páginas:</b> añade <code>/about</code> contando quién eres.</li>
+    </ol>
+  </section>
+
+<div style="text-align:center; color:var(--py-yellow); font-weight:800; letter-spacing:3px; margin:36px 0 4px; font-size:.9rem;">⚡ · REPASO FINAL ·</div>
+
+  <!-- ================= CAP 14 ================= -->
+  <section class="chapter" id="cap14">
+    <div class="cap-head"><span class="cap-num">⚡</span><h2>Chuleta final</h2></div>
+    <p>Todo el manual en una página. ¡Guárdala en favoritos! 🔖</p>
+    <table class="ref">
+      <tr><th>Tema</th><th>Sintaxis</th></tr>
+      <tr><td>Imprimir / pedir datos</td><td><code>print("hola")</code> · <code>x = input("? ")</code></td></tr>
+      <tr><td>Comentario</td><td><code># esto lo ignora Python</code></td></tr>
+      <tr><td>Variable / tipos</td><td><code>x = 5</code> · <code>int</code> <code>float</code> <code>str</code> <code>bool</code></td></tr>
+      <tr><td>Convertir</td><td><code>int("5")</code> <code>str(5)</code> <code>float("5")</code></td></tr>
+      <tr><td>Aritmética</td><td><code>+ - * / // % **</code></td></tr>
+      <tr><td>Comparar</td><td><code>== != &gt; &lt; &gt;= &lt;=</code></td></tr>
+      <tr><td>Lógica</td><td><code>and or not</code></td></tr>
+      <tr><td>Atajos</td><td><code>x += 1</code> <code>x -= 1</code> <code>x *= 2</code></td></tr>
+      <tr><td>f-string</td><td><code>f"Hola, {nombre}"</code></td></tr>
+      <tr><td>Condicional</td><td><code>if …: / elif …: / else:</code></td></tr>
+      <tr><td>Bucle for</td><td><code>for i in range(5):</code> · <code>for x in lista:</code></td></tr>
+      <tr><td>Bucle while</td><td><code>while cond:</code> · <code>break</code> · <code>continue</code></td></tr>
+      <tr><td>Lista</td><td><code>l = [1, 2]</code> · <code>l[0]</code> · <code>l.append(3)</code> · <code>len(l)</code></td></tr>
+      <tr><td>Diccionario</td><td><code>d = {"a": 1}</code> · <code>d["a"]</code> · <code>d.get("b", 0)</code></td></tr>
+      <tr><td>Función</td><td><code>def f(x): return x * 2</code></td></tr>
+      <tr><td>Comprensión</td><td><code>[x**2 for x in range(5)]</code></td></tr>
+      <tr><td>Slicing</td><td><code>lista[1:4]</code> (coge del índice 1 al 3)</td></tr>
+      <tr><td>Atrapar errores</td><td><code>try: … except ValueError: …</code></td></tr>
+      <tr><td>Clase / objeto</td><td><code>class Perro: …</code> · <code>p = Perro("Toby")</code></td></tr>
+      <tr><td>Método</td><td><code>def ladrar(self): …</code> · <code>p.ladrar()</code></td></tr>
+      <tr><td>Ficheros</td><td><code>open("a.txt", "r")</code> · modos <code>r</code> <code>w</code> <code>a</code></td></tr>
+      <tr><td>Bot (telebot)</td><td><code>@bot.message_handler(commands=["start"])</code></td></tr>
+      <tr><td>Módulos</td><td><code>import random</code> · <code>from x import y</code> · <code>pip install algo</code></td></tr>
+      <tr><td>Herencia</td><td><code>class Perro(Animal):</code></td></tr>
+      <tr><td>*args / **kwargs</td><td><code>def f(*args, **kwargs):</code></td></tr>
+      <tr><td>Web (Flask)</td><td><code>@app.route("/")</code> · <code>render_template(...)</code></td></tr>
+      <tr><td>Formularios</td><td><code>request.form["x"]</code> · <code>redirect("/")</code></td></tr>
+    </table>
+    <div class="tip">💡 <b>¿Y ahora qué?</b> Sigue practicando en <a href="index.html" style="color:var(--py-yellow); font-weight:700">PyQuest 🎮</a>, ¡completa los <b>talleres</b> 🔨🤖, consigue las 3 estrellas en todos los niveles ⭐ y apunta a lo grande: <b>interfaces con ventanas</b> (Tkinter), <b>web</b> (Flask), <b>datos</b> (pandas) o <b>IA</b>. ¡El límite lo pones tú! 🚀</div>
+  </section>
+
+  <footer>
+    Hecho con 🐍 para aprender Python · <a href="index.html">Volver a PyQuest 🎮</a> · <a href="contacto.html">Contacto ✉️</a>
+  </footer>
+</div>
+
+<button id="toTop" title="Volver arriba">↑</button>
+
+<script>
+"use strict";
+/* ---------- Índice automático ---------- */
+const toc = document.getElementById("toc");
+document.querySelectorAll(".chapter").forEach(ch => {
+  const a = document.createElement("a");
+  a.href = "#" + ch.id;
+  a.textContent = ch.querySelector("h2").textContent;
+  toc.appendChild(a);
+});
+
+/* ---------- Anterior / Siguiente ---------- */
+const chapters = Array.from(document.querySelectorAll(".chapter"));
+chapters.forEach((ch, i) => {
+  const nav = document.createElement("div");
+  nav.className = "cap-nav";
+  nav.innerHTML =
+    (i > 0 ? `<a href="#${chapters[i-1].id}">← ${chapters[i-1].querySelector("h2").textContent}</a>` : "<span></span>") +
+    (i < chapters.length - 1 ? `<a href="#${chapters[i+1].id}">${chapters[i+1].querySelector("h2").textContent} →</a>` : "<span></span>");
+  ch.appendChild(nav);
+});
+
+/* ---------- Mini resaltado de sintaxis Python ---------- */
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+const PY_RE = /(#[^\n]*)|((?:[fFrR])?(?:"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'))|\b(True|False|None|and|or|not|if|elif|else|for|while|in|def|return|import|from|as|class|try|except|with|lambda|pass|break|continue|is)\b|\b(print|len|range|str|int|float|bool|type|input|list|dict|set|append|sum|min|max|abs|round|randint|self|__init__|random|choice)\b|(\b\d+(?:\.\d+)?\b)/g;
+function highlight(src) {
+  let out = "", last = 0, m;
+  PY_RE.lastIndex = 0;
+  while ((m = PY_RE.exec(src)) !== null) {
+    out += esc(src.slice(last, m.index));
+    const tok = m[0];
+    let cls = null;
+    if (m[1]) cls = "tok-c";
+    else if (m[2]) cls = "tok-s";
+    else if (m[3]) cls = "tok-k";
+    else if (m[4]) cls = "tok-b";
+    else if (m[5]) cls = "tok-n";
+    out += cls ? `<span class="${cls}">${esc(tok)}</span>` : esc(tok);
+    last = m.index + tok.length;
+  }
+  return out + esc(src.slice(last));
+}
+document.querySelectorAll("pre.code code").forEach(code => {
+  code.innerHTML = highlight(code.textContent);
+});
+
+/* ---------- Botón copiar ---------- */
+document.querySelectorAll("pre.code").forEach(pre => {
+  const btn = document.createElement("button");
+  btn.className = "copy"; btn.textContent = "⧉ copiar";
+  btn.onclick = async () => {
+    const text = pre.querySelector("code").textContent;
+    try { await navigator.clipboard.writeText(text); }
+    catch(e) {
+      const ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta);
+      ta.select(); try { document.execCommand("copy"); } catch(_){}
+      ta.remove();
+    }
+    btn.textContent = "✓ ¡copiado!";
+    setTimeout(() => btn.textContent = "⧉ copiar", 1500);
+  };
+  pre.appendChild(btn);
+});
+
+/* ---------- Barra de progreso + volver arriba ---------- */
+const bar = document.getElementById("progress"), toTop = document.getElementById("toTop");
+addEventListener("scroll", () => {
+  const h = document.documentElement;
+  const pct = h.scrollTop / (h.scrollHeight - h.clientHeight) * 100;
+  bar.style.width = pct + "%";
+  toTop.style.display = h.scrollTop > 500 ? "block" : "none";
+}, { passive: true });
+toTop.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+</script>
+</body>
+</html>

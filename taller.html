@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔨 Taller: tu primera app — PyQuest</title>
+<style>
+  :root {
+    --bg1: #0f172a; --bg2: #1e1b4b;
+    --card: #1e293b; --code-bg: #0b1120;
+    --py-blue: #4b8bbe; --py-yellow: #ffd43b;
+    --green: #22c55e; --red: #ef4444;
+    --text: #f1f5f9; --muted: #94a3b8; --border: #334155;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2) 60%, #312e81);
+    background-attachment: fixed;
+    color: var(--text); line-height: 1.7; padding-bottom: 60px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
+  header.top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(15,23,42,.95); backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border); padding: 10px 0;
+  }
+  .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .logo { font-size: 1.25rem; font-weight: 800; }
+  .logo span { color: var(--py-yellow); }
+  .top-links { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .btn-link {
+    display: inline-block; text-decoration: none; font-weight: 700; font-size: .85rem;
+    background: rgba(255,255,255,.08); border: 1px solid var(--border); color: var(--text);
+    border-radius: 10px; padding: 7px 14px;
+  }
+  .btn-link:hover { border-color: var(--py-yellow); }
+  .btn-link.primary { background: var(--py-yellow); color: #1e293b; border: none; }
+  .pill {
+    background: rgba(255,255,255,.08); border: 1px solid var(--border);
+    border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: .85rem;
+  }
+  .cover { text-align: center; padding: 40px 16px 10px; }
+  .cover h1 { font-size: 2.2rem; margin: 8px 0; }
+  .cover h1 span { color: var(--py-yellow); }
+  .cover p { color: var(--muted); max-width: 640px; margin: 0 auto; }
+  .progress-wrap { background: rgba(255,255,255,.08); border-radius: 999px; height: 14px; overflow: hidden; margin: 16px auto 4px; max-width: 500px; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--py-blue), var(--green)); width: 0%; transition: width .5s ease; border-radius: 999px; }
+
+  .chapter {
+    background: rgba(30,41,59,.92); border: 1px solid var(--border);
+    border-radius: 18px; padding: 26px; margin: 22px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  .cap-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .cap-num {
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--green), #15803d);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: 800;
+  }
+  .chapter h2 { font-size: 1.4rem; }
+  .chapter h3 { font-size: 1.1rem; margin: 20px 0 8px; color: var(--py-yellow); }
+  .chapter p { margin: 8px 0; color: #dbe3ef; }
+  .chapter ul, .chapter ol { margin: 8px 0 8px 22px; color: #dbe3ef; }
+  .chapter li { margin: 4px 0; }
+  .chapter p code, .chapter li code, td code {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    background: rgba(255,255,255,.1); padding: 2px 7px; border-radius: 6px;
+    font-size: .9em; color: var(--py-yellow); white-space: nowrap;
+  }
+  pre.code {
+    position: relative; background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; overflow-x: auto; margin: 10px 0;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: .9rem; line-height: 1.65; color: #e2e8f0;
+  }
+  pre.code .copy {
+    position: absolute; top: 8px; right: 8px; cursor: pointer;
+    background: rgba(255,255,255,.1); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 4px 10px; font-size: .75rem; font-family: inherit;
+  }
+  pre.code .copy:hover { background: rgba(255,255,255,.2); }
+  .tok-k { color: #c792ea; font-weight: 700; }
+  .tok-s { color: #9ece6a; }
+  .tok-c { color: #5c6a7d; font-style: italic; }
+  .tok-n { color: #ff9e64; }
+  .tok-b { color: #7dcfff; }
+  .output {
+    background: #020617; border: 1px solid var(--border); border-left: 4px solid var(--green);
+    border-radius: 0 12px 12px 0; padding: 10px 14px; margin: -4px 0 10px;
+    font-family: ui-monospace, Consolas, monospace; font-size: .88rem;
+    white-space: pre-wrap; color: #cbd5e1;
+  }
+  .output::before { content: "▶ Salida"; display: block; font-size: .72rem; color: var(--green); font-weight: 800; margin-bottom: 4px; font-family: system-ui, sans-serif; }
+  .tip, .warn { border-radius: 12px; padding: 12px 14px; margin: 12px 0; font-size: .93rem; }
+  .tip { background: rgba(75,139,190,.14); border: 1px solid var(--py-blue); }
+  .warn { background: rgba(239,68,68,.1); border: 1px solid var(--red); }
+  table.ref { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: .9rem; }
+  table.ref th, table.ref td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+  table.ref th { background: rgba(255,255,255,.06); }
+
+  /* ---------- Terminal demo ---------- */
+  .term {
+    background: #020617; border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; margin: 12px 0;
+  }
+  .term-bar {
+    display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+    background: rgba(255,255,255,.04); border-bottom: 1px solid var(--border);
+    font-size: .8rem; color: var(--muted);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .term-out {
+    font-family: ui-monospace, Consolas, monospace; font-size: .88rem;
+    min-height: 200px; max-height: 320px; overflow-y: auto; padding: 12px 14px;
+    white-space: pre-wrap; line-height: 1.7; color: #cbd5e1;
+  }
+  .term-out .cmd { color: var(--py-yellow); font-weight: 700; }
+  .demo-controls { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 12px 12px; align-items: center; }
+  .demo-in {
+    flex: 1 1 140px; background: #0b1120; border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); padding: 9px 12px; font-size: .9rem;
+    font-family: ui-monospace, Consolas, monospace;
+  }
+  .mini-btn {
+    cursor: pointer; border: 1px solid var(--border); font-weight: 700;
+    border-radius: 8px; padding: 9px 14px; font-size: .85rem;
+    background: rgba(255,255,255,.08); color: var(--text);
+  }
+  .mini-btn:hover { border-color: var(--py-yellow); }
+  .mini-btn.green { background: var(--green); color: #052e16; border: none; }
+  .mini-btn.yellow { background: var(--py-yellow); color: #1e293b; border: none; }
+  .mini-btn:disabled { opacity: .5; cursor: default; }
+
+  /* ---------- Retos ---------- */
+  .reto {
+    background: rgba(255,212,59,.06); border: 1px dashed var(--py-yellow);
+    border-radius: 12px; padding: 14px; margin: 14px 0;
+  }
+  .reto textarea {
+    width: 100%; min-height: 70px; margin: 10px 0;
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+    color: #e2e8f0; font-family: ui-monospace, Consolas, monospace;
+    font-size: .9rem; padding: 10px; resize: vertical;
+  }
+  .reto-msg { font-size: .9rem; margin-top: 8px; font-weight: 600; min-height: 1.4em; }
+  .reto-msg.ok { color: var(--green); }
+  .reto-msg.err { color: var(--red); }
+  .choice-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .choice {
+    cursor: pointer; background: rgba(255,255,255,.06); border: 2px solid var(--border);
+    border-radius: 10px; padding: 9px 18px; color: var(--text);
+    font-family: ui-monospace, Consolas, monospace; font-size: .95rem;
+  }
+  .choice:hover:not(:disabled) { border-color: var(--py-blue); }
+  .choice.good { border-color: var(--green); background: rgba(34,197,94,.12); }
+  .choice.bad { border-color: var(--red); background: rgba(239,68,68,.12); }
+  .choice:disabled { cursor: default; }
+
+  .done-check {
+    display: flex; align-items: center; gap: 10px; margin-top: 16px;
+    background: rgba(34,197,94,.08); border: 1px solid var(--green);
+    border-radius: 12px; padding: 12px 14px; cursor: pointer; font-weight: 700;
+  }
+  .done-check input { width: 20px; height: 20px; accent-color: var(--green); cursor: pointer; }
+  .next-row { text-align: right; margin-top: 12px; }
+  .next-row a { color: var(--py-yellow); font-weight: 700; text-decoration: none; }
+  .dl-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  #toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--card); border: 1px solid var(--green); color: var(--text);
+    border-radius: 999px; padding: 10px 22px; font-weight: 700; font-size: .9rem;
+    opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 70;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5); max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  footer { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 30px; }
+  footer a { color: var(--py-yellow); }
+  @media (max-width: 560px) {
+    .cover h1 { font-size: 1.7rem; }
+    .chapter { padding: 18px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="logo">🔨 Taller <span>PyQuest</span></div>
+      <div class="top-links">
+        <span class="pill">🏗 <span id="tprog">0/6</span></span>
+        <a class="btn-link" href="index.html">🎮 Juego</a>
+        <a class="btn-link" href="manual.html">📖 Manual</a>
+        <a class="btn-link" href="contacto.html">✉️ Contacto</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="cover">
+    <div style="font-size:3.5rem">🔨</div>
+    <h1>Construye tu <span>primera app</span></h1>
+    <p>Una <b>lista de tareas</b> de verdad, construida contigo en <b>6 pasos</b>: primero pruébala aquí abajo, luego escribe cada pieza, supera los mini-retos y al final <b>descarga tu programa</b> listo para ejecutarlo en tu PC. 🚀</p>
+    <div class="progress-wrap"><div class="progress-bar" id="tbar"></div></div>
+  </div>
+
+  <!-- ============ DEMO ============ -->
+  <section class="chapter" id="demo">
+    <div class="cap-head"><span class="cap-num">👀</span><h2>La meta: pruébala aquí mismo</h2></div>
+    <p>Esto es lo que vas a construir (una simulación de tu futura app). ¡Úsala! Escribe una tarea y pulsa <b>Añadir</b>, o dale a <b>✨ Demo automática</b>:</p>
+    <div class="term">
+      <div class="term-bar"><span class="dot" style="background:#ef4444"></span><span class="dot" style="background:#f59e0b"></span><span class="dot" style="background:#22c55e"></span>&nbsp; mis_tareas.py — DEMO</div>
+      <div class="term-out" id="term-out"></div>
+      <div class="demo-controls">
+        <input class="demo-in" id="demo-in" placeholder="Escribe una tarea o un número…" autocomplete="off">
+        <button class="mini-btn" id="d-ver">📋 Ver</button>
+        <button class="mini-btn green" id="d-add">➕ Añadir</button>
+        <button class="mini-btn" id="d-done">✓ Completar</button>
+        <button class="mini-btn" id="d-del">🗑 Borrar</button>
+        <button class="mini-btn yellow" id="d-auto">✨ Demo automática</button>
+      </div>
+    </div>
+    <div class="tip">💡 La app real hará exactamente esto, pero escrita en Python y <b>guardando tus tareas en un archivo</b> para no perderlas. ¡Vamos a crearla!</div>
+    <div class="next-row"><a href="#paso1">Empezar el paso 1 →</a></div>
+  </section>
+
+  <!-- ============ PASO 1 ============ -->
+  <section class="chapter" id="paso1">
+    <div class="cap-head"><span class="cap-num">1</span><h2>Los cimientos: datos y mostrar</h2></div>
+    <p>Crea un archivo llamado <code>mis_tareas.py</code>. Lo primero: decidir <b>cómo guardamos los datos</b>. Cada tarea será un diccionario con su texto y si está hecha, y todas vivirán en una <b>lista</b>:</p>
+    <pre class="code"><code># mis_tareas.py — ¡Mi primera app! 🎉
+
+def mostrar_tareas(tareas):
+    if not tareas:
+        print("(sin tareas)")
+        return
+    for i in range(len(tareas)):
+        marca = "✓" if tareas[i]["hecha"] else "○"
+        print(f"{i + 1}. [{marca}] {tareas[i]['texto']}")
+
+
+# Datos de prueba (los quitaremos en el paso 4):
+tareas = [
+    {"texto": "Aprender Python", "hecha": True},
+    {"texto": "Hacer mi primera app", "hecha": False},
+]
+mostrar_tareas(tareas)</code></pre>
+    <div class="output">1. [✓] Aprender Python
+2. [○] Hacer mi primera app</div>
+    <div class="tip">💡 Trucos usados: <code>if not tareas</code> detecta una lista vacía (¡las listas vacías valen <code>False</code>!), y <code>"✓" if ... else "○"</code> elige la marca en una línea.</div>
+    <label class="done-check"><input type="checkbox" data-step="0"> ✅ Entiendo los datos y la función mostrar</label>
+    <div class="next-row"><a href="#paso2">Siguiente paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 2 ============ -->
+  <section class="chapter" id="paso2">
+    <div class="cap-head"><span class="cap-num">2</span><h2>Añadir tareas</h2></div>
+    <p>Para añadir necesitamos pedir un texto con <code>input()</code>, limpiarlo con <code>.strip()</code> (quita espacios y el Enter) y meterlo en la lista con <code>.append()</code>:</p>
+    <pre class="code"><code>texto = input("Nueva tarea: ").strip()
+if texto:
+    tareas.append({"texto": texto, "hecha": False})
+    print("¡Añadida!")</code></pre>
+    <div class="tip">💡 <code>if texto:</code> evita guardar tareas vacías: un texto vacío <code>""</code> también vale <code>False</code>. ¡Guarda este trozo! Lo colocaremos dentro del menú en el paso 4.</div>
+    <label class="done-check"><input type="checkbox" data-step="1"> ✅ Entiendo cómo añadir tareas</label>
+    <div class="next-row"><a href="#paso3">Siguiente paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 3 ============ -->
+  <section class="chapter" id="paso3">
+    <div class="cap-head"><span class="cap-num">3</span><h2>Completar, borrar y pedir números</h2></div>
+    <p>Para completar o borrar, el usuario elige un <b>número</b>. Pero <code>int()</code> se rompe si escribes letras… ¡Necesitamos una función a prueba de errores! Presentamos <code>pedir_numero</code>:</p>
+    <pre class="code"><code>def pedir_numero(texto, maximo):
+    while True:
+        try:
+            n = int(input(texto))
+            if 1 &lt;= n &lt;= maximo:
+                return n
+            print(f"Escribe un número del 1 al {maximo}.")
+        except ValueError:
+            print("Eso no es un número, prueba otra vez.")</code></pre>
+    <div class="tip">💡 Dos cosas nuevas: <code>try/except ValueError</code> atrapa el error si escribes letras, y Python permite comparar en cadena: <code>1 &lt;= n &lt;= maximo</code> significa «entre 1 y el máximo».</div>
+    <p>Con eso, completar y borrar son fáciles. Fíjate en el <code>n - 1</code>: ¡el usuario cuenta desde 1 pero Python desde 0!</p>
+    <pre class="code"><code>mostrar_tareas(tareas)
+n = pedir_numero("¿Cuál completaste? ", len(tareas))
+tareas[n - 1]["hecha"] = True
+print("¡Bien hecho! 🎉")</code></pre>
+    <pre class="code"><code>mostrar_tareas(tareas)
+n = pedir_numero("¿Cuál borras? ", len(tareas))
+borrada = tareas.pop(n - 1)
+print(f"Borrada: {borrada['texto']}")</code></pre>
+    <div class="reto">
+      <b>🎯 Mini-reto 1:</b> sin mirar 👀, escribe la línea que marca como hecha la tarea número <code>n</code>:
+      <textarea id="reto1" placeholder='tareas[...][...] = ...' spellcheck="false"></textarea>
+      <button class="mini-btn yellow" id="btn-reto1">Comprobar</button>
+      <div class="reto-msg" id="msg-reto1"></div>
+    </div>
+    <label class="done-check"><input type="checkbox" data-step="2"> ✅ Domino completar, borrar y pedir números</label>
+    <div class="next-row"><a href="#paso4">Siguiente paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 4 ============ -->
+  <section class="chapter" id="paso4">
+    <div class="cap-head"><span class="cap-num">4</span><h2>El menú: el corazón de la app</h2></div>
+    <p>Ahora unimos TODAS las piezas en la función <code>main()</code>: un <code>while True</code> que muestra opciones y reacciona con <code>if/elif</code>. La opción 5 sale con <code>break</code>:</p>
+    <pre class="code"><code>def main():
+    tareas = []  # provisional: en el paso 5 cargaremos el archivo
+    print("=== MIS TAREAS ✅ ===")
+    while True:
+        print("\n1. Ver  2. Añadir  3. Completar  4. Borrar  5. Salir")
+        opcion = input("Elige: ")
+        if opcion == "1":
+            mostrar_tareas(tareas)
+        elif opcion == "2":
+            texto = input("Nueva tarea: ").strip()
+            if texto:
+                tareas.append({"texto": texto, "hecha": False})
+                print("¡Añadida!")
+        elif opcion == "3":
+            if not tareas:
+                print("(sin tareas)")
+            else:
+                mostrar_tareas(tareas)
+                n = pedir_numero("¿Cuál completaste? ", len(tareas))
+                tareas[n - 1]["hecha"] = True
+                print("¡Bien hecho! 🎉")
+        elif opcion == "4":
+            if not tareas:
+                print("(sin tareas)")
+            else:
+                mostrar_tareas(tareas)
+                n = pedir_numero("¿Cuál borras? ", len(tareas))
+                borrada = tareas.pop(n - 1)
+                print(f"Borrada: {borrada['texto']}")
+        elif opcion == "5":
+            print("¡Hasta luego!")
+            break
+        else:
+            print("Opción no válida.")
+
+
+main()</code></pre>
+    <div class="warn">⚠️ <b>Importante:</b> borra las líneas de «datos de prueba» del paso 1 (ya no hacen falta) y deja la llamada <code>main()</code> al final del todo.</div>
+    <div class="reto">
+      <b>🎯 Mini-reto 2:</b> ¿qué debe escribir el usuario para salir del programa?
+      <div class="choice-row" id="rq-menu">
+        <button class="choice" data-i="0">5</button>
+        <button class="choice" data-i="1">salir</button>
+        <button class="choice" data-i="2">break</button>
+      </div>
+      <div class="reto-msg" id="msg-rq-menu"></div>
+    </div>
+    <label class="done-check"><input type="checkbox" data-step="3"> ✅ Mi menú funciona (¡pruébalo en tu PC!)</label>
+    <div class="next-row"><a href="#paso5">Siguiente paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 5 ============ -->
+  <section class="chapter" id="paso5">
+    <div class="cap-head"><span class="cap-num">5</span><h2>Memoria infinita: archivos 💾</h2></div>
+    <p>Tu app casi está lista… pero tiene amnesia: al cerrarla, ¡olvida todo! La cura: guardar en un archivo <code>tareas.txt</code>. Con <code>open()</code> y <code>with</code> (que lo cierra solo):</p>
+    <table class="ref">
+      <tr><th>Modo</th><th>Significa</th></tr>
+      <tr><td><code>"r"</code></td><td><b>Read</b>: leer (falla si no existe)</td></tr>
+      <tr><td><code>"w"</code></td><td><b>Write</b>: escribir (crea el archivo o borra lo anterior)</td></tr>
+      <tr><td><code>"a"</code></td><td><b>Append</b>: añadir al final sin borrar</td></tr>
+    </table>
+    <p>Guardaremos cada tarea en una línea: <code>[x] Estudiar</code> o <code>[ ] Comprar pan</code>. Añade estas dos funciones <b>al principio</b> del archivo:</p>
+    <pre class="code"><code>ARCHIVO = "tareas.txt"
+
+
+def guardar_tareas(tareas):
+    with open(ARCHIVO, "w", encoding="utf-8") as f:
+        for t in tareas:
+            marca = "[x]" if t["hecha"] else "[ ]"
+            f.write(f"{marca} {t['texto']}\n")
+
+
+def cargar_tareas():
+    tareas = []
+    try:
+        with open(ARCHIVO, "r", encoding="utf-8") as f:
+            for linea in f:
+                linea = linea.strip()
+                if linea:
+                    hecha = linea.startswith("[x]")
+                    texto = linea[3:].strip()
+                    tareas.append({"texto": texto, "hecha": hecha})
+    except FileNotFoundError:
+        pass  # primera vez: aún no hay archivo
+    return tareas</code></pre>
+    <p>Y conecta el guardado en <code>main()</code> con <b>dos cambios</b>:</p>
+    <pre class="code"><code>    tareas = cargar_tareas()   # ← en vez de tareas = []</code></pre>
+    <pre class="code"><code>        elif opcion == "5":
+            guardar_tareas(tareas)   # ← ¡guardar antes de salir!
+            print("¡Hasta luego! Tus tareas están a salvo. 💾")
+            break</code></pre>
+    <div class="reto">
+      <b>🎯 Mini-reto 3:</b> escribe las líneas para salir <b>guardando</b> (llamar a guardar + romper el bucle):
+      <textarea id="reto2" placeholder="..."></textarea>
+      <button class="mini-btn yellow" id="btn-reto2">Comprobar</button>
+      <div class="reto-msg" id="msg-reto2"></div>
+    </div>
+    <div class="reto">
+      <b>🎯 Mini-reto 4:</b> ¿qué modo abre un archivo para <b>leer</b>?
+      <div class="choice-row" id="rq-mode">
+        <button class="choice" data-i="0">"r"</button>
+        <button class="choice" data-i="1">"w"</button>
+        <button class="choice" data-i="2">"a"</button>
+      </div>
+      <div class="reto-msg" id="msg-rq-mode"></div>
+    </div>
+    <label class="done-check"><input type="checkbox" data-step="4"> ✅ Mi app guarda y carga tareas</label>
+    <div class="next-row"><a href="#paso6">Último paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 6 ============ -->
+  <section class="chapter" id="paso6">
+    <div class="cap-head"><span class="cap-num">6</span><h2>¡Ejecútala! 🚀</h2></div>
+    <p>¡Lo lograste! Aquí está tu app completa. <b>Descárgala</b> o cópiala a tu <code>mis_tareas.py</code>:</p>
+    <div class="dl-row">
+      <button class="mini-btn yellow" id="btn-copy-full">⧉ Copiar código completo</button>
+      <button class="mini-btn green" id="btn-download">⬇ Descargar mis_tareas.py</button>
+    </div>
+    <pre class="code" id="full-code"><code># mis_tareas.py — ¡Mi primera app! 🎉
+
+ARCHIVO = "tareas.txt"
+
+
+def cargar_tareas():
+    tareas = []
+    try:
+        with open(ARCHIVO, "r", encoding="utf-8") as f:
+            for linea in f:
+                linea = linea.strip()
+                if linea:
+                    hecha = linea.startswith("[x]")
+                    texto = linea[3:].strip()
+                    tareas.append({"texto": texto, "hecha": hecha})
+    except FileNotFoundError:
+        pass  # primera vez: aún no hay archivo
+    return tareas
+
+
+def guardar_tareas(tareas):
+    with open(ARCHIVO, "w", encoding="utf-8") as f:
+        for t in tareas:
+            marca = "[x]" if t["hecha"] else "[ ]"
+            f.write(f"{marca} {t['texto']}\n")
+
+
+def mostrar_tareas(tareas):
+    if not tareas:
+        print("(sin tareas)")
+        return
+    for i in range(len(tareas)):
+        marca = "✓" if tareas[i]["hecha"] else "○"
+        print(f"{i + 1}. [{marca}] {tareas[i]['texto']}")
+
+
+def pedir_numero(texto, maximo):
+    while True:
+        try:
+            n = int(input(texto))
+            if 1 &lt;= n &lt;= maximo:
+                return n
+            print(f"Escribe un número del 1 al {maximo}.")
+        except ValueError:
+            print("Eso no es un número, prueba otra vez.")
+
+
+def main():
+    tareas = cargar_tareas()
+    print("=== MIS TAREAS ✅ ===")
+    while True:
+        print("\n1. Ver  2. Añadir  3. Completar  4. Borrar  5. Salir")
+        opcion = input("Elige: ")
+        if opcion == "1":
+            mostrar_tareas(tareas)
+        elif opcion == "2":
+            texto = input("Nueva tarea: ").strip()
+            if texto:
+                tareas.append({"texto": texto, "hecha": False})
+                print("¡Añadida!")
+        elif opcion == "3":
+            if not tareas:
+                print("(sin tareas)")
+            else:
+                mostrar_tareas(tareas)
+                n = pedir_numero("¿Cuál completaste? ", len(tareas))
+                tareas[n - 1]["hecha"] = True
+                print("¡Bien hecho! 🎉")
+        elif opcion == "4":
+            if not tareas:
+                print("(sin tareas)")
+            else:
+                mostrar_tareas(tareas)
+                n = pedir_numero("¿Cuál borras? ", len(tareas))
+                borrada = tareas.pop(n - 1)
+                print(f"Borrada: {borrada['texto']}")
+        elif opcion == "5":
+            guardar_tareas(tareas)
+            print("¡Hasta luego! Tus tareas están a salvo. 💾")
+            break
+        else:
+            print("Opción no válida.")
+
+
+main()</code></pre>
+    <h3>▶️ Cómo ejecutarla en tu PC</h3>
+    <ol>
+      <li>Guarda el código como <code>mis_tareas.py</code> (usa el botón de descarga ⬇).</li>
+      <li>Abre una terminal en esa carpeta y escribe <code>python mis_tareas.py</code> (o ábrelo en VS Code y pulsa ▶).</li>
+      <li>Añade tareas, sal… ¡y vuelve a entrar! Seguirán ahí gracias a <code>tareas.txt</code>. 💾</li>
+    </ol>
+    <h3>🚀 Retos de ampliación</h3>
+    <ol>
+      <li><b>Contador:</b> al salir, muestra «Te quedan X pendientes» (cuenta las de <code>hecha == False</code>).</li>
+      <li><b>Editar:</b> añade la opción 6 para cambiar el texto de una tarea.</li>
+      <li><b>Limpiar hechas:</b> opción que borre de golpe todas las completadas (pista: comprensión con <code>if</code>).</li>
+      <li><b>¡Sueña!</b> Con esta misma estructura puedes hacer una app de notas, de gastos o de contraseñas.</li>
+    </ol>
+    <div class="tip">💡 ¿Quieres la teoría de archivos por escrito? La tienes en el <a href="manual.html#cap-app" style="color:var(--py-yellow); font-weight:700">capítulo 15 del manual 📖</a>.</div>
+    <label class="done-check"><input type="checkbox" data-step="5"> ✅ ¡Ejecuté mi app! Soy creador de apps 🎉</label>
+    <div class="dl-row" style="margin-top:16px">
+      <a class="btn-link" href="index.html">🎮 Volver al juego</a>
+      <a class="btn-link" href="manual.html">📖 Ir al manual</a>
+      <a class="btn-link" href="taller-bot.html">🤖 Taller del bot</a>
+      <a class="btn-link" href="taller-web.html">🌐 Taller de la web</a>
+      <button class="mini-btn" id="btn-treset">↺ Reiniciar taller</button>
+    </div>
+  </section>
+
+  <footer>
+    Hecho con 🐍 para aprender Python · <a href="index.html">PyQuest 🎮</a> · <a href="manual.html">Manual 📖</a> · <a href="contacto.html">Contacto ✉️</a>
+  </footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* ---------- Storage seguro ---------- */
+const store = {
+  mem: {},
+  get(k, fb) {
+    try { const v = localStorage.getItem(k); return v === null ? fb : JSON.parse(v); }
+    catch(e) { return (k in this.mem) ? this.mem[k] : fb; }
+  },
+  set(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); }
+    catch(e) { this.mem[k] = v; }
+  }
+};
+const $ = id => document.getElementById(id);
+
+/* ---------- Resaltado Python + copiar ---------- */
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+const PY_RE = /(#[^\n]*)|((?:[fFrR])?(?:"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'))|\b(True|False|None|and|or|not|if|elif|else|for|while|in|def|return|import|from|as|class|try|except|with|lambda|pass|break|continue|is)\b|\b(print|len|range|str|int|float|bool|type|input|list|dict|set|append|sum|min|max|abs|round|open|self|__init__)\b|(\b\d+(?:\.\d+)?\b)/g;
+function highlight(src) {
+  let out = "", last = 0, m;
+  PY_RE.lastIndex = 0;
+  while ((m = PY_RE.exec(src)) !== null) {
+    out += esc(src.slice(last, m.index));
+    const tok = m[0];
+    let cls = null;
+    if (m[1]) cls = "tok-c";
+    else if (m[2]) cls = "tok-s";
+    else if (m[3]) cls = "tok-k";
+    else if (m[4]) cls = "tok-b";
+    else if (m[5]) cls = "tok-n";
+    out += cls ? `<span class="${cls}">${esc(tok)}</span>` : esc(tok);
+    last = m.index + tok.length;
+  }
+  return out + esc(src.slice(last));
+}
+document.querySelectorAll("pre.code code").forEach(code => {
+  code.innerHTML = highlight(code.textContent);
+});
+document.querySelectorAll("pre.code").forEach(pre => {
+  const btn = document.createElement("button");
+  btn.className = "copy"; btn.textContent = "⧉ copiar";
+  btn.onclick = async () => {
+    const text = pre.querySelector("code").textContent;
+    try { await navigator.clipboard.writeText(text); }
+    catch(e) {
+      const ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta);
+      ta.select(); try { document.execCommand("copy"); } catch(_){}
+      ta.remove();
+    }
+    btn.textContent = "✓ ¡copiado!";
+    setTimeout(() => btn.textContent = "⧉ copiar", 1500);
+  };
+  pre.appendChild(btn);
+});
+
+/* ---------- Toast ---------- */
+let toastTimer = null;
+function showToast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+/* ---------- Progreso del taller ---------- */
+const NSTEPS = 6;
+let tstate = store.get("pyq_taller", null);
+if (!tstate || !Array.isArray(tstate.checks) || tstate.checks.length !== NSTEPS)
+  tstate = { checks: [false,false,false,false,false,false] };
+function renderTaller() {
+  document.querySelectorAll("[data-step]").forEach(c => { c.checked = !!tstate.checks[+c.dataset.step]; });
+  const n = tstate.checks.filter(Boolean).length;
+  $("tprog").textContent = n + "/" + NSTEPS;
+  $("tbar").style.width = (n / NSTEPS * 100) + "%";
+}
+document.querySelectorAll("[data-step]").forEach(c => {
+  c.addEventListener("change", () => {
+    tstate.checks[+c.dataset.step] = c.checked;
+    store.set("pyq_taller", tstate);
+    renderTaller();
+    if (tstate.checks.every(Boolean)) showToast("🎉 ¡Taller completado! Eres creador de apps");
+    else if (c.checked) showToast("✓ Paso guardado");
+  });
+});
+$("btn-treset").onclick = () => {
+  tstate = { checks: [false,false,false,false,false,false] };
+  store.set("pyq_taller", tstate);
+  renderTaller();
+  showToast("Taller reiniciado");
+};
+renderTaller();
+
+/* ---------- Terminal demo ---------- */
+let demo = [];
+const termOut = $("term-out"), demoIn = $("demo-in");
+function tprint(t, cls) {
+  const d = document.createElement("div");
+  if (cls) d.className = cls;
+  d.textContent = t;
+  termOut.appendChild(d);
+  termOut.scrollTop = termOut.scrollHeight;
+}
+function demoList() {
+  if (!demo.length) { tprint("(sin tareas)"); return; }
+  demo.forEach((t, i) => tprint(`${i + 1}. [${t.hecha ? "✓" : "○"}] ${t.texto}`));
+}
+function demoNum() {
+  const n = parseInt(demoIn.value.trim(), 10);
+  if (isNaN(n) || n < 1 || n > demo.length) {
+    tprint(`⚠️ Escribe un número del 1 al ${demo.length} en la casilla.`);
+    return -1;
+  }
+  return n;
+}
+tprint("=== MIS TAREAS ✅ ===");
+tprint("Demo interactiva: añade tareas y pruébala. ¡Esto construirás!");
+$("d-ver").onclick = () => { tprint("> Ver", "cmd"); demoList(); };
+$("d-add").onclick = () => {
+  const v = demoIn.value.trim();
+  if (!v) { tprint("⚠️ Escribe una tarea primero."); return; }
+  tprint(`> Añadir "${v}"`, "cmd");
+  demo.push({ texto: v, hecha: false });
+  demoIn.value = "";
+  tprint("¡Añadida!");
+};
+$("d-done").onclick = () => {
+  const n = demoNum(); if (n < 0) return;
+  tprint(`> Completar ${n}`, "cmd");
+  demo[n - 1].hecha = true;
+  demoIn.value = "";
+  tprint("¡Bien hecho! 🎉");
+};
+$("d-del").onclick = () => {
+  const n = demoNum(); if (n < 0) return;
+  tprint(`> Borrar ${n}`, "cmd");
+  const b = demo.splice(n - 1, 1)[0];
+  demoIn.value = "";
+  tprint(`Borrada: ${b.texto}`);
+};
+$("d-auto").onclick = () => {
+  const btn = $("d-auto");
+  btn.disabled = true;
+  demo = [];
+  const seq = [
+    () => { tprint('> Añadir "Comprar pan"', "cmd"); demo.push({texto:"Comprar pan",hecha:false}); tprint("¡Añadida!"); },
+    () => { tprint('> Añadir "Estudiar Python"', "cmd"); demo.push({texto:"Estudiar Python",hecha:false}); tprint("¡Añadida!"); },
+    () => { tprint("> Ver", "cmd"); demoList(); },
+    () => { tprint("> Completar 2", "cmd"); demo[1].hecha = true; tprint("¡Bien hecho! 🎉"); },
+    () => { tprint("> Ver", "cmd"); demoList(); },
+    () => { tprint("💾 Al salir, todo se guarda en tareas.txt"); btn.disabled = false; }
+  ];
+  seq.forEach((fn, i) => setTimeout(fn, 600 * (i + 1)));
+};
+demoIn.addEventListener("keydown", e => { if (e.key === "Enter") $("d-add").click(); });
+
+/* ---------- Retos ---------- */
+const norm = s => (s || "").replace(/\s+/g, "").replace(/'/g, '"').toLowerCase();
+function setMsg(id, ok, text) {
+  const m = $(id);
+  m.className = "reto-msg " + (ok ? "ok" : "err");
+  m.textContent = text;
+}
+$("btn-reto1").onclick = () => {
+  const n = norm($("reto1").value);
+  if (!n.includes("tareas[")) return setMsg("msg-reto1", false, "❌ Usa la lista tareas[...] con el índice entre corchetes.");
+  if (!n.includes("n-1")) return setMsg("msg-reto1", false, "❌ El índice debe ser n - 1 (el usuario cuenta desde 1).");
+  if (!n.includes('["hecha"]=true')) return setMsg("msg-reto1", false, '❌ Usa la clave "hecha" y asígnala a True: ...["hecha"] = True');
+  setMsg("msg-reto1", true, "✅ ¡Correcto! Esa línea marca la tarea como hecha.");
+  showToast("🎯 ¡Reto superado!");
+};
+$("btn-reto2").onclick = () => {
+  const v = $("reto2").value;
+  if (!/guardar_tareas\s*\(\s*tareas\s*\)/.test(v)) return setMsg("msg-reto2", false, "❌ Falta llamar a guardar_tareas(tareas).");
+  if (!/break/.test(v)) return setMsg("msg-reto2", false, "❌ Falta el break para salir del bucle.");
+  setMsg("msg-reto2", true, "✅ ¡Correcto! Guardar y luego break: así no se pierde nada.");
+  showToast("🎯 ¡Reto superado!");
+};
+const CHOICE_OK = { "rq-menu": 0, "rq-mode": 0 };
+const CHOICE_WHY = {
+  "rq-menu": "✅ ¡Correcto! opcion es el texto que escribe el usuario, y el programa sale cuando vale \"5\".",
+  "rq-mode": "✅ ¡Correcto! \"r\" = read (leer). \"w\" escribe y \"a\" añade al final."
+};
+document.querySelectorAll(".choice-row").forEach(row => {
+  row.querySelectorAll(".choice").forEach(b => {
+    b.onclick = () => {
+      if (b.disabled) return;
+      const okIdx = CHOICE_OK[row.id], msgId = "msg-" + row.id;
+      if (+b.dataset.i === okIdx) {
+        b.classList.add("good");
+        row.querySelectorAll(".choice").forEach(x => x.disabled = true);
+        setMsg(msgId, true, CHOICE_WHY[row.id]);
+        showToast("🎯 ¡Reto superado!");
+      } else {
+        b.classList.add("bad");
+        b.disabled = true;
+        setMsg(msgId, false, "❌ Esa no es. ¡Prueba otra vez!");
+      }
+    };
+  });
+});
+
+/* ---------- Descargar / copiar completo ---------- */
+function fullCode() { return document.querySelector("#full-code code").textContent; }
+$("btn-copy-full").onclick = async () => {
+  try { await navigator.clipboard.writeText(fullCode()); }
+  catch(e) {
+    const ta = document.createElement("textarea");
+    ta.value = fullCode(); document.body.appendChild(ta);
+    ta.select(); try { document.execCommand("copy"); } catch(_){}
+    ta.remove();
+  }
+  showToast("✓ Código completo copiado");
+};
+$("btn-download").onclick = () => {
+  try {
+    const blob = new Blob([fullCode()], { type: "text/x-python;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "mis_tareas.py";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+    showToast("⬇ ¡Descargado! Ejecútalo con: python mis_tareas.py");
+  } catch(e) {
+    showToast("❌ Tu navegador bloqueó la descarga. Usa «Copiar» instead".replace("instead", ""));
+  }
+};
+</script>
+</body>
+</html>

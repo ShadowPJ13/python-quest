@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🤖 Taller: tu primer bot — PyQuest</title>
+<style>
+  :root {
+    --bg1: #0f172a; --bg2: #1e1b4b;
+    --card: #1e293b; --code-bg: #0b1120;
+    --py-blue: #4b8bbe; --py-yellow: #ffd43b;
+    --green: #22c55e; --red: #ef4444;
+    --text: #f1f5f9; --muted: #94a3b8; --border: #334155;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2) 60%, #312e81);
+    background-attachment: fixed;
+    color: var(--text); line-height: 1.7; padding-bottom: 60px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
+  header.top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(15,23,42,.95); backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border); padding: 10px 0;
+  }
+  .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .logo { font-size: 1.25rem; font-weight: 800; }
+  .logo span { color: var(--py-yellow); }
+  .top-links { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .btn-link {
+    display: inline-block; text-decoration: none; font-weight: 700; font-size: .85rem;
+    background: rgba(255,255,255,.08); border: 1px solid var(--border); color: var(--text);
+    border-radius: 10px; padding: 7px 14px;
+  }
+  .btn-link:hover { border-color: var(--py-yellow); }
+  .pill {
+    background: rgba(255,255,255,.08); border: 1px solid var(--border);
+    border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: .85rem;
+  }
+  .cover { text-align: center; padding: 40px 16px 10px; }
+  .cover h1 { font-size: 2.2rem; margin: 8px 0; }
+  .cover h1 span { color: var(--py-yellow); }
+  .cover p { color: var(--muted); max-width: 640px; margin: 0 auto; }
+  .progress-wrap { background: rgba(255,255,255,.08); border-radius: 999px; height: 14px; overflow: hidden; margin: 16px auto 4px; max-width: 500px; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--py-blue), var(--green)); width: 0%; transition: width .5s ease; border-radius: 999px; }
+
+  .chapter {
+    background: rgba(30,41,59,.92); border: 1px solid var(--border);
+    border-radius: 18px; padding: 26px; margin: 22px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  .cap-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .cap-num {
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 14px;
+    background: linear-gradient(135deg, #0ea5e9, #0369a1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: 800;
+  }
+  .chapter h2 { font-size: 1.4rem; }
+  .chapter h3 { font-size: 1.1rem; margin: 20px 0 8px; color: var(--py-yellow); }
+  .chapter p { margin: 8px 0; color: #dbe3ef; }
+  .chapter ul, .chapter ol { margin: 8px 0 8px 22px; color: #dbe3ef; }
+  .chapter li { margin: 4px 0; }
+  .chapter p code, .chapter li code, td code {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    background: rgba(255,255,255,.1); padding: 2px 7px; border-radius: 6px;
+    font-size: .9em; color: var(--py-yellow); white-space: nowrap;
+  }
+  pre.code {
+    position: relative; background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; overflow-x: auto; margin: 10px 0;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: .9rem; line-height: 1.65; color: #e2e8f0;
+  }
+  pre.code .copy {
+    position: absolute; top: 8px; right: 8px; cursor: pointer;
+    background: rgba(255,255,255,.1); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 4px 10px; font-size: .75rem; font-family: inherit;
+  }
+  pre.code .copy:hover { background: rgba(255,255,255,.2); }
+  .tok-k { color: #c792ea; font-weight: 700; }
+  .tok-s { color: #9ece6a; }
+  .tok-c { color: #5c6a7d; font-style: italic; }
+  .tok-n { color: #ff9e64; }
+  .tok-b { color: #7dcfff; }
+  .tip, .warn { border-radius: 12px; padding: 12px 14px; margin: 12px 0; font-size: .93rem; }
+  .tip { background: rgba(75,139,190,.14); border: 1px solid var(--py-blue); }
+  .warn { background: rgba(239,68,68,.1); border: 1px solid var(--red); }
+
+  /* ---------- Chat demo ---------- */
+  .chat {
+    background: #020617; border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; margin: 12px 0;
+  }
+  .chat-bar {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    background: rgba(255,255,255,.04); border-bottom: 1px solid var(--border);
+  }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%; flex: 0 0 auto;
+    background: linear-gradient(135deg, #0ea5e9, #0369a1);
+    display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+  }
+  .chat-bar b { display: block; font-size: .95rem; }
+  .chat-bar small { color: var(--green); font-size: .78rem; }
+  .chat-out {
+    display: flex; flex-direction: column; gap: 8px;
+    min-height: 240px; max-height: 360px; overflow-y: auto; padding: 14px;
+  }
+  .bub {
+    max-width: 80%; padding: 9px 13px; border-radius: 14px;
+    font-size: .9rem; line-height: 1.55; white-space: pre-wrap; word-break: break-word;
+    animation: bubIn .25s ease;
+  }
+  @keyframes bubIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: none;} }
+  .bub.bot { align-self: flex-start; background: #1e293b; border-bottom-left-radius: 4px; }
+  .bub.user { align-self: flex-end; background: #0369a1; border-bottom-right-radius: 4px; }
+  .bub.typing { color: var(--muted); letter-spacing: 2px; }
+  .chat-quick { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 12px 8px; }
+  .chat-controls { display: flex; gap: 8px; padding: 0 12px 12px; }
+  .chat-in {
+    flex: 1; background: #0b1120; border: 1px solid var(--border);
+    border-radius: 999px; color: var(--text); padding: 10px 16px; font-size: .9rem;
+  }
+  .mini-btn {
+    cursor: pointer; border: 1px solid var(--border); font-weight: 700;
+    border-radius: 999px; padding: 9px 16px; font-size: .85rem;
+    background: rgba(255,255,255,.08); color: var(--text); white-space: nowrap;
+  }
+  .mini-btn:hover { border-color: var(--py-yellow); }
+  .mini-btn.green { background: var(--green); color: #052e16; border: none; border-radius: 8px; }
+  .mini-btn.yellow { background: var(--py-yellow); color: #1e293b; border: none; border-radius: 8px; }
+  .mini-btn.square { border-radius: 8px; }
+  .mini-btn:disabled { opacity: .5; cursor: default; }
+
+  /* ---------- Retos ---------- */
+  .reto {
+    background: rgba(255,212,59,.06); border: 1px dashed var(--py-yellow);
+    border-radius: 12px; padding: 14px; margin: 14px 0;
+  }
+  .reto textarea {
+    width: 100%; min-height: 60px; margin: 10px 0;
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+    color: #e2e8f0; font-family: ui-monospace, Consolas, monospace;
+    font-size: .9rem; padding: 10px; resize: vertical;
+  }
+  .reto-msg { font-size: .9rem; margin-top: 8px; font-weight: 600; min-height: 1.4em; }
+  .reto-msg.ok { color: var(--green); }
+  .reto-msg.err { color: var(--red); }
+  .choice-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .choice {
+    cursor: pointer; background: rgba(255,255,255,.06); border: 2px solid var(--border);
+    border-radius: 10px; padding: 9px 14px; color: var(--text); font-size: .85rem;
+  }
+  .choice:hover:not(:disabled) { border-color: var(--py-blue); }
+  .choice.good { border-color: var(--green); background: rgba(34,197,94,.12); }
+  .choice.bad { border-color: var(--red); background: rgba(239,68,68,.12); }
+  .choice:disabled { cursor: default; }
+
+  .done-check {
+    display: flex; align-items: center; gap: 10px; margin-top: 16px;
+    background: rgba(34,197,94,.08); border: 1px solid var(--green);
+    border-radius: 12px; padding: 12px 14px; cursor: pointer; font-weight: 700;
+  }
+  .done-check input { width: 20px; height: 20px; accent-color: var(--green); cursor: pointer; }
+  .next-row { text-align: right; margin-top: 12px; }
+  .next-row a { color: var(--py-yellow); font-weight: 700; text-decoration: none; }
+  .dl-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  #toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--card); border: 1px solid var(--green); color: var(--text);
+    border-radius: 999px; padding: 10px 22px; font-weight: 700; font-size: .9rem;
+    opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 70;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5); max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  footer { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 30px; }
+  footer a { color: var(--py-yellow); }
+  @media (max-width: 560px) {
+    .cover h1 { font-size: 1.7rem; }
+    .chapter { padding: 18px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="logo">🤖 Taller <span>Bot</span></div>
+      <div class="top-links">
+        <span class="pill">🏗 <span id="tprog">0/5</span></span>
+        <a class="btn-link" href="index.html">🎮 Juego</a>
+        <a class="btn-link" href="manual.html">📖 Manual</a>
+        <a class="btn-link" href="taller.html">🔨 Taller App</a>
+        <a class="btn-link" href="contacto.html">✉️ Contacto</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="cover">
+    <div style="font-size:3.5rem">🤖</div>
+    <h1>Construye tu <span>primer bot</span></h1>
+    <p>Un bot de <b>Telegram</b> que responde a comandos, juega a los dados, suma y guarda notas. Primero <b>chatea con la demo</b>, luego constrúyelo en <b>5 pasos</b> y llévalo en tu móvil. 📱</p>
+    <div class="progress-wrap"><div class="progress-bar" id="tbar"></div></div>
+  </div>
+
+  <!-- ============ DEMO ============ -->
+  <section class="chapter" id="demo">
+    <div class="cap-head"><span class="cap-num">👀</span><h2>La meta: chatea con la demo</h2></div>
+    <p>Esto es lo que vas a construir (simulado aquí mismo). ¡Escríbele! Prueba <code>/start</code>, <code>/dado</code>, <code>/suma 5 3</code>, <code>/nota ...</code> o simplemente salúdalo:</p>
+    <div class="chat">
+      <div class="chat-bar">
+        <div class="avatar">🤖</div>
+        <div><b>MiBot</b><small>● en línea</small></div>
+      </div>
+      <div class="chat-out" id="chat-out"></div>
+      <div class="chat-quick">
+        <button class="mini-btn" data-q="/start">/start</button>
+        <button class="mini-btn" data-q="/ayuda">/ayuda</button>
+        <button class="mini-btn" data-q="/dado">🎲 /dado</button>
+        <button class="mini-btn" data-q="/suma 12 30">/suma 12 30</button>
+        <button class="mini-btn" data-q="hola, ¿sabes python?">hola 👋</button>
+      </div>
+      <div class="chat-controls">
+        <input class="chat-in" id="chat-in" placeholder="Escribe un mensaje…" autocomplete="off">
+        <button class="mini-btn square" id="chat-send" style="background:var(--py-yellow); color:#1e293b; border:none">Enviar ➤</button>
+      </div>
+    </div>
+    <div class="tip">💡 Tu bot real hará exactamente esto, pero viviendo en Telegram y programado por ti en Python. ¡Vamos a crearlo!</div>
+    <div class="next-row"><a href="#paso1">Empezar el paso 1 →</a></div>
+  </section>
+
+  <!-- ============ PASO 1 ============ -->
+  <section class="chapter" id="paso1">
+    <div class="cap-head"><span class="cap-num">1</span><h2>Crea tu bot y prepáralo</h2></div>
+    <h3>🤖 1. Habla con BotFather (5 minutos)</h3>
+    <ol>
+      <li>Abre <b>Telegram</b> y busca <b>@BotFather</b> (el que tiene ✓ verificado).</li>
+      <li>Envíale <code>/newbot</code> y sigue sus preguntas.</li>
+      <li>Elige un nombre (ej: <i>Mi Primer Bot</i>) y un <b>usuario terminado en <code>bot</code></b> (ej: <i>mi_primer_bot_123_bot</i>). Tiene que ser único.</li>
+      <li>¡Listo! Te dará un <b>token</b> parecido a <code>123456:ABC-DEF...</code>. Cópialo, lo necesitarás en el código.</li>
+      <li>Abre tu bot (te da un enlace <code>t.me/...</code>) y pulsa <b>Iniciar</b>.</li>
+    </ol>
+    <div class="warn">⚠️ El token es la <b>contraseña</b> de tu bot: quien la tenga puede controlarlo. No la publiques en internet.</div>
+    <h3>📦 2. Instala la librería</h3>
+    <p>Abre una terminal y escribe:</p>
+    <pre class="code"><code>pip install pyTelegramBotAPI</code></pre>
+    <h3>🐍 3. El esqueleto</h3>
+    <p>Crea <code>mi_bot.py</code> con esto (pon tu token de verdad). Si lo ejecutas, no hará nada aún… ¡pero se conectará sin errores!</p>
+    <pre class="code"><code>import telebot
+
+TOKEN = "PON_AQUI_TU_TOKEN"
+bot = telebot.TeleBot(TOKEN)
+
+print("Bot en marcha… 🤖")
+bot.infinity_polling()</code></pre>
+    <div class="tip">💡 <code>bot.infinity_polling()</code> significa «pregunta a Telegram sin parar si hay mensajes nuevos». Por eso la terminal debe quedarse abierta.</div>
+    <label class="done-check"><input type="checkbox" data-step="0"> ✅ Mi bot existe y se conecta</label>
+    <div class="next-row"><a href="#paso2">Siguiente paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 2 ============ -->
+  <section class="chapter" id="paso2">
+    <div class="cap-head"><span class="cap-num">2</span><h2>Tu primer comando: /start</h2></div>
+    <p>Los bots escuchan con <b>decoradores</b>: líneas con <code>@</code> que dicen «cuando pase ESTO, ejecuta esta función». <code>mensaje</code> trae lo que escribió el usuario:</p>
+    <pre class="code"><code>@bot.message_handler(commands=["start"])
+def saludar(mensaje):
+    bot.reply_to(mensaje, "¡Hola! Soy tu primer bot 🎉\nEscribe /ayuda para ver lo que sé hacer.")
+
+
+@bot.message_handler(commands=["ayuda"])
+def ayuda(mensaje):
+    bot.reply_to(mensaje,
+        "Puedo hacer esto:\n"
+        "/start - Saludarme\n"
+        "/ayuda - Ver esta ayuda\n"
+        "/dado - Tirar un dado 🎲\n"
+        "/suma 5 3 - Sumar números ➕\n"
+        "/nota comprar pan - Guardar una nota 📝\n"
+        "/notas - Ver tus notas\n"
+        "Y si me hablas… ¡te respondo! 💬")</code></pre>
+    <div class="tip">💡 Pega estas funciones <b>antes</b> del <code>bot.infinity_polling()</code> final. <code>bot.reply_to()</code> responde al mensaje que llegó. ¡Pruébalo en Telegram!</div>
+    <div class="reto">
+      <b>🎯 Mini-reto 1:</b> ¿qué hace <code>@bot.message_handler(commands=["start"])</code>?
+      <div class="choice-row" id="rq-deco">
+        <button class="choice" data-i="0">Ejecuta la función cuando escriban /start</button>
+        <button class="choice" data-i="1">Crea el token del bot</button>
+        <button class="choice" data-i="2">Apaga el bot</button>
+      </div>
+      <div class="reto-msg" id="msg-rq-deco"></div>
+    </div>
+    <label class="done-check"><input type="checkbox" data-step="1"> ✅ Mi bot responde a /start y /ayuda</label>
+    <div class="next-row"><a href="#paso3">Siguiente paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 3 ============ -->
+  <section class="chapter" id="paso3">
+    <div class="cap-head"><span class="cap-num">3</span><h2>Juegos: el dado 🎲</h2></div>
+    <p>Con el módulo <code>random</code> tu bot puede jugar. Añade <code>import random</code> <b>arriba del todo</b> y esta función antes del polling:</p>
+    <pre class="code"><code>@bot.message_handler(commands=["dado"])
+def dado(mensaje):
+    numero = random.randint(1, 6)
+    bot.reply_to(mensaje, f"🎲 ¡Un {numero}!")</code></pre>
+    <div class="reto">
+      <b>🎯 Mini-reto 2:</b> escribe la línea que genera un número aleatorio del <b>1 al 6</b> en la variable <code>numero</code>:
+      <textarea id="reto1" placeholder="numero = ..." spellcheck="false"></textarea>
+      <button class="mini-btn yellow" id="btn-reto1">Comprobar</button>
+      <div class="reto-msg" id="msg-reto1"></div>
+    </div>
+    <label class="done-check"><input type="checkbox" data-step="2"> ✅ Mi bot tira dados</label>
+    <div class="next-row"><a href="#paso4">Siguiente paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 4 ============ -->
+  <section class="chapter" id="paso4">
+    <div class="cap-head"><span class="cap-num">4</span><h2>Lee lo que escriben: /suma</h2></div>
+    <p>¿Y si el comando trae datos, como <code>/suma 5 3</code>? El texto completo llega en <code>mensaje.text</code>. Lo partimos con <code>.split()</code> → <code>["/suma", "5", "3"]</code> y cogemos los trozos <code>[1]</code> y <code>[2]</code>:</p>
+    <pre class="code"><code>@bot.message_handler(commands=["suma"])
+def suma(mensaje):
+    try:
+        partes = mensaje.text.split()
+        a = float(partes[1])
+        b = float(partes[2])
+        bot.reply_to(mensaje, f"➕ {a} + {b} = {a + b}")
+    except (IndexError, ValueError):
+        bot.reply_to(mensaje, "Úsalo así: /suma 5 3")</code></pre>
+    <div class="tip">💡 El <code>try/except</code> protege de dos meteduras de pata: escribir pocos números (<code>IndexError</code>) o escribir letras (<code>ValueError</code>). ¡Un bot profesional nunca se cuelga!</div>
+    <div class="reto">
+      <b>🎯 Mini-reto 3:</b> escribe la línea que convierte el <b>primer número</b> (trozo <code>[1]</code>) en decimal, guardándolo en <code>a</code>:
+      <textarea id="reto2" placeholder="a = ..." spellcheck="false"></textarea>
+      <button class="mini-btn yellow" id="btn-reto2">Comprobar</button>
+      <div class="reto-msg" id="msg-reto2"></div>
+    </div>
+    <label class="done-check"><input type="checkbox" data-step="3"> ✅ Mi bot suma lo que le pido</label>
+    <div class="next-row"><a href="#paso5">Último paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 5 ============ -->
+  <section class="chapter" id="paso5">
+    <div class="cap-head"><span class="cap-num">5</span><h2>Memoria y charla + ¡a por todas! 🚀</h2></div>
+    <h3>📝 Notas por usuario</h3>
+    <p>Guardaremos notas en un <b>diccionario</b> donde la clave es <code>mensaje.chat.id</code> (el nº que identifica a cada persona). ¡Así cada usuario tiene SUS notas!</p>
+    <pre class="code"><code>notas = {}  # chat_id -> lista de notas (ponlo arriba, con el token)
+
+
+@bot.message_handler(commands=["nota"])
+def guardar_nota(mensaje):
+    texto = mensaje.text.replace("/nota", "", 1).strip()
+    if not texto:
+        bot.reply_to(mensaje, "Escribe algo: /nota comprar pan")
+        return
+    chat = mensaje.chat.id
+    if chat not in notas:
+        notas[chat] = []
+    notas[chat].append(texto)
+    bot.reply_to(mensaje, f"📝 Nota guardada ({len(notas[chat])} en total).")
+
+
+@bot.message_handler(commands=["notas"])
+def ver_notas(mensaje):
+    chat = mensaje.chat.id
+    if chat not in notas or not notas[chat]:
+        bot.reply_to(mensaje, "(sin notas)")
+        return
+    lineas = [f"{i + 1}. {n}" for i, n in enumerate(notas[chat])]
+    bot.reply_to(mensaje, "📝 Tus notas:\n" + "\n".join(lineas))</code></pre>
+    <div class="reto">
+      <b>🎯 Mini-reto 4:</b> ¿por qué <code>notas</code> es un diccionario con <code>chat.id</code>?
+      <div class="choice-row" id="rq-dict">
+        <button class="choice" data-i="0">Para que cada usuario tenga sus propias notas</button>
+        <button class="choice" data-i="1">Porque los diccionarios son más rápidos</button>
+        <button class="choice" data-i="2">Para que el bot gaste menos batería</button>
+      </div>
+      <div class="reto-msg" id="msg-rq-dict"></div>
+    </div>
+    <h3>💬 Responder cuando hablan (sin comandos)</h3>
+    <p>Esta función atrapa <b>todo lo demás</b>: mira si el texto contiene palabras clave y si no, hace eco. El truco: excluimos los comandos con <code>not ... startswith("/")</code> (¡si no, respondería dos veces a cada comando!).</p>
+    <pre class="code"><code>@bot.message_handler(func=lambda m: not m.text.startswith("/"), content_types=["text"])
+def responder(mensaje):
+    texto = mensaje.text.lower()
+    if "hola" in texto:
+        bot.reply_to(mensaje, "¡Hola, humano! 👋")
+    elif "python" in texto:
+        bot.reply_to(mensaje, "¡Python es el mejor lenguaje! 🐍")
+    elif "gracias" in texto:
+        bot.reply_to(mensaje, "¡De nada! 😊")
+    else:
+        bot.reply_to(mensaje, f"Me has dicho: {mensaje.text}")</code></pre>
+    <div class="tip">💡 <code>lambda m: ...</code> es una mini-función sin nombre: «responde a todo lo que NO empiece por /». Y <code>content_types=["text"]</code> ignora stickers y fotos para que no lo rompan.</div>
+
+    <h3>📦 El código completo</h3>
+    <p>Todo junto en <code>mi_bot.py</code>. <b>Descárgalo</b>, pon tu token y ejecútalo:</p>
+    <div class="dl-row">
+      <button class="mini-btn yellow" id="btn-copy-full">⧉ Copiar código completo</button>
+      <button class="mini-btn green" id="btn-download">⬇ Descargar mi_bot.py</button>
+    </div>
+    <pre class="code" id="bot-full-code"><code># mi_bot.py — ¡Mi primer bot de Telegram! 🤖
+import random
+import telebot
+
+TOKEN = "PON_AQUI_TU_TOKEN"
+bot = telebot.TeleBot(TOKEN)
+
+notas = {}  # chat_id -> lista de notas
+
+
+@bot.message_handler(commands=["start"])
+def saludar(mensaje):
+    bot.reply_to(mensaje, "¡Hola! Soy tu primer bot 🎉\nEscribe /ayuda para ver lo que sé hacer.")
+
+
+@bot.message_handler(commands=["ayuda"])
+def ayuda(mensaje):
+    bot.reply_to(mensaje,
+        "Puedo hacer esto:\n"
+        "/start - Saludarme\n"
+        "/ayuda - Ver esta ayuda\n"
+        "/dado - Tirar un dado 🎲\n"
+        "/suma 5 3 - Sumar números ➕\n"
+        "/nota comprar pan - Guardar una nota 📝\n"
+        "/notas - Ver tus notas\n"
+        "Y si me hablas… ¡te respondo! 💬")
+
+
+@bot.message_handler(commands=["dado"])
+def dado(mensaje):
+    numero = random.randint(1, 6)
+    bot.reply_to(mensaje, f"🎲 ¡Un {numero}!")
+
+
+@bot.message_handler(commands=["suma"])
+def suma(mensaje):
+    try:
+        partes = mensaje.text.split()
+        a = float(partes[1])
+        b = float(partes[2])
+        bot.reply_to(mensaje, f"➕ {a} + {b} = {a + b}")
+    except (IndexError, ValueError):
+        bot.reply_to(mensaje, "Úsalo así: /suma 5 3")
+
+
+@bot.message_handler(commands=["nota"])
+def guardar_nota(mensaje):
+    texto = mensaje.text.replace("/nota", "", 1).strip()
+    if not texto:
+        bot.reply_to(mensaje, "Escribe algo: /nota comprar pan")
+        return
+    chat = mensaje.chat.id
+    if chat not in notas:
+        notas[chat] = []
+    notas[chat].append(texto)
+    bot.reply_to(mensaje, f"📝 Nota guardada ({len(notas[chat])} en total).")
+
+
+@bot.message_handler(commands=["notas"])
+def ver_notas(mensaje):
+    chat = mensaje.chat.id
+    if chat not in notas or not notas[chat]:
+        bot.reply_to(mensaje, "(sin notas)")
+        return
+    lineas = [f"{i + 1}. {n}" for i, n in enumerate(notas[chat])]
+    bot.reply_to(mensaje, "📝 Tus notas:\n" + "\n".join(lineas))
+
+
+@bot.message_handler(func=lambda m: not m.text.startswith("/"), content_types=["text"])
+def responder(mensaje):
+    texto = mensaje.text.lower()
+    if "hola" in texto:
+        bot.reply_to(mensaje, "¡Hola, humano! 👋")
+    elif "python" in texto:
+        bot.reply_to(mensaje, "¡Python es el mejor lenguaje! 🐍")
+    elif "gracias" in texto:
+        bot.reply_to(mensaje, "¡De nada! 😊")
+    else:
+        bot.reply_to(mensaje, f"Me has dicho: {mensaje.text}")
+
+
+print("Bot en marcha… 🤖")
+bot.infinity_polling()</code></pre>
+    <h3>▶️ Ponlo en marcha</h3>
+    <ol>
+      <li>Pega tu token en <code>TOKEN = "..."</code>.</li>
+      <li>Ejecuta <code>python mi_bot.py</code> y <b>deja la terminal abierta</b> (si la cierras, el bot se duerme 😴).</li>
+      <li>Habla con tu bot en Telegram desde el móvil. ¡Funciona de verdad! 📱</li>
+    </ol>
+    <h3>🚀 Retos de ampliación</h3>
+    <ol>
+      <li><b>/moneda:</b> cara o cruz con <code>random.choice(["cara", "cruz"])</code>.</li>
+      <li><b>/chiste:</b> una lista de chistes y uno al azar.</li>
+      <li><b>Notas eternas:</b> guárdalas en un archivo (¡como en el <a href="taller.html" style="color:var(--py-yellow); font-weight:700">taller de la app</a>!).</li>
+      <li><b>Más charla:</b> responde a «adiós», «quién eres» o tu nombre.</li>
+    </ol>
+    <label class="done-check"><input type="checkbox" data-step="4"> ✅ ¡Mi bot vive en Telegram! 🤖🎉</label>
+    <div class="dl-row" style="margin-top:16px">
+      <a class="btn-link" href="index.html">🎮 Volver al juego</a>
+      <a class="btn-link" href="manual.html">📖 Ir al manual</a>
+      <a class="btn-link" href="taller.html">🔨 Taller de la app</a>
+      <a class="btn-link" href="taller-web.html">🌐 Taller de la web</a>
+      <button class="mini-btn square" id="btn-treset">↺ Reiniciar taller</button>
+    </div>
+  </section>
+
+  <footer>
+    Hecho con 🐍 para aprender Python · <a href="index.html">PyQuest 🎮</a> · <a href="manual.html">Manual 📖</a> · <a href="contacto.html">Contacto ✉️</a>
+  </footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* ---------- Storage seguro ---------- */
+const store = {
+  mem: {},
+  get(k, fb) {
+    try { const v = localStorage.getItem(k); return v === null ? fb : JSON.parse(v); }
+    catch(e) { return (k in this.mem) ? this.mem[k] : fb; }
+  },
+  set(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); }
+    catch(e) { this.mem[k] = v; }
+  }
+};
+const $ = id => document.getElementById(id);
+
+/* ---------- Resaltado Python + copiar ---------- */
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+const PY_RE = /(#[^\n]*)|((?:[fFrR])?(?:"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'))|\b(True|False|None|and|or|not|if|elif|else|for|while|in|def|return|import|from|as|class|try|except|with|lambda|pass|break|continue|is)\b|\b(print|len|range|str|int|float|bool|type|input|list|dict|set|append|sum|min|max|abs|round|open|random|choice|randint|enumerate)\b|(\b\d+(?:\.\d+)?\b)/g;
+function highlight(src) {
+  let out = "", last = 0, m;
+  PY_RE.lastIndex = 0;
+  while ((m = PY_RE.exec(src)) !== null) {
+    out += esc(src.slice(last, m.index));
+    const tok = m[0];
+    let cls = null;
+    if (m[1]) cls = "tok-c";
+    else if (m[2]) cls = "tok-s";
+    else if (m[3]) cls = "tok-k";
+    else if (m[4]) cls = "tok-b";
+    else if (m[5]) cls = "tok-n";
+    out += cls ? `<span class="${cls}">${esc(tok)}</span>` : esc(tok);
+    last = m.index + tok.length;
+  }
+  return out + esc(src.slice(last));
+}
+document.querySelectorAll("pre.code code").forEach(code => {
+  code.innerHTML = highlight(code.textContent);
+});
+document.querySelectorAll("pre.code").forEach(pre => {
+  const btn = document.createElement("button");
+  btn.className = "copy"; btn.textContent = "⧉ copiar";
+  btn.onclick = async () => {
+    const text = pre.querySelector("code").textContent;
+    try { await navigator.clipboard.writeText(text); }
+    catch(e) {
+      const ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta);
+      ta.select(); try { document.execCommand("copy"); } catch(_){}
+      ta.remove();
+    }
+    btn.textContent = "✓ ¡copiado!";
+    setTimeout(() => btn.textContent = "⧉ copiar", 1500);
+  };
+  pre.appendChild(btn);
+});
+
+/* ---------- Toast ---------- */
+let toastTimer = null;
+function showToast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+/* ---------- Progreso del taller ---------- */
+const NSTEPS = 5;
+let tstate = store.get("pyq_taller_bot", null);
+if (!tstate || !Array.isArray(tstate.checks) || tstate.checks.length !== NSTEPS)
+  tstate = { checks: [false,false,false,false,false] };
+function renderTaller() {
+  document.querySelectorAll("[data-step]").forEach(c => { c.checked = !!tstate.checks[+c.dataset.step]; });
+  const n = tstate.checks.filter(Boolean).length;
+  $("tprog").textContent = n + "/" + NSTEPS;
+  $("tbar").style.width = (n / NSTEPS * 100) + "%";
+}
+document.querySelectorAll("[data-step]").forEach(c => {
+  c.addEventListener("change", () => {
+    tstate.checks[+c.dataset.step] = c.checked;
+    store.set("pyq_taller_bot", tstate);
+    renderTaller();
+    if (tstate.checks.every(Boolean)) showToast("🎉 ¡Taller completado! Tu bot vive 🤖");
+    else if (c.checked) showToast("✓ Paso guardado");
+  });
+});
+$("btn-treset").onclick = () => {
+  tstate = { checks: [false,false,false,false,false] };
+  store.set("pyq_taller_bot", tstate);
+  renderTaller();
+  showToast("Taller reiniciado");
+};
+renderTaller();
+
+/* ---------- Chat demo ---------- */
+const chatOut = $("chat-out"), chatIn = $("chat-in");
+const demoNotas = [];
+function bubble(text, who) {
+  const d = document.createElement("div");
+  d.className = "bub " + who;
+  d.textContent = text;
+  chatOut.appendChild(d);
+  chatOut.scrollTop = chatOut.scrollHeight;
+  return d;
+}
+function botReply(text) {
+  const t = text.trim();
+  if (t.startsWith("/")) {
+    const parts = t.slice(1).split(/\s+/);
+    const cmd = (parts[0] || "").toLowerCase();
+    if (cmd === "start") return "¡Hola! Soy tu primer bot 🎉\nEscribe /ayuda para ver lo que sé hacer.";
+    if (cmd === "ayuda") return "Puedo hacer esto:\n/start - Saludarme\n/ayuda - Ver esta ayuda\n/dado - Tirar un dado 🎲\n/suma 5 3 - Sumar números ➕\n/nota comprar pan - Guardar una nota 📝\n/notas - Ver tus notas\nY si me hablas… ¡te respondo! 💬";
+    if (cmd === "dado") return `🎲 ¡Un ${1 + Math.floor(Math.random() * 6)}!`;
+    if (cmd === "suma") {
+      const a = parseFloat(parts[1]), b = parseFloat(parts[2]);
+      if (isNaN(a) || isNaN(b)) return "Úsalo así: /suma 5 3";
+      return `➕ ${a} + ${b} = ${a + b}`;
+    }
+    if (cmd === "nota") {
+      const resto = t.replace(/^\/nota\s*/, "");
+      if (!resto) return "Escribe algo: /nota comprar pan";
+      demoNotas.push(resto);
+      return `📝 Nota guardada (${demoNotas.length} en total).`;
+    }
+    if (cmd === "notas") {
+      if (!demoNotas.length) return "(sin notas)";
+      return "📝 Tus notas:\n" + demoNotas.map((n, i) => `${i + 1}. ${n}`).join("\n");
+    }
+    return "No conozco ese comando. Prueba /ayuda.";
+  }
+  const low = t.toLowerCase();
+  if (low.includes("hola")) return "¡Hola, humano! 👋";
+  if (low.includes("python")) return "¡Python es el mejor lenguaje! 🐍";
+  if (low.includes("gracias")) return "¡De nada! 😊";
+  return `Me has dicho: ${text}`;
+}
+function sendChat(text) {
+  const v = (text !== undefined ? text : chatIn.value).trim();
+  if (!v) return;
+  bubble(v, "user");
+  chatIn.value = "";
+  const typing = bubble("···", "bot typing");
+  setTimeout(() => {
+    typing.textContent = botReply(v);
+    typing.classList.remove("typing");
+    chatOut.scrollTop = chatOut.scrollHeight;
+  }, 600);
+}
+$("chat-send").onclick = () => sendChat();
+chatIn.addEventListener("keydown", e => { if (e.key === "Enter") sendChat(); });
+document.querySelectorAll("[data-q]").forEach(b => b.onclick = () => sendChat(b.dataset.q));
+setTimeout(() => bubble("¡Hola! Soy la demo de tu futuro bot 🎉\nEscríbeme algo o prueba los botones de comandos.", "bot"), 400);
+
+/* ---------- Retos ---------- */
+const norm = s => (s || "").replace(/\s+/g, "").replace(/'/g, '"').toLowerCase();
+function setMsg(id, ok, text) {
+  const m = $(id);
+  m.className = "reto-msg " + (ok ? "ok" : "err");
+  m.textContent = text;
+}
+$("btn-reto1").onclick = () => {
+  const n = norm($("reto1").value);
+  if (!n.includes("random.randint(1,6)")) return setMsg("msg-reto1", false, "❌ Usa random.randint(1, 6) para un dado de 6 caras.");
+  if (!n.includes("numero=")) return setMsg("msg-reto1", false, "❌ Guárdalo en la variable numero: numero = ...");
+  setMsg("msg-reto1", true, "✅ ¡Correcto! numero = random.randint(1, 6)");
+  showToast("🎯 ¡Reto superado!");
+};
+$("btn-reto2").onclick = () => {
+  const v = $("reto2").value;
+  if (!/float\s*\(\s*partes\s*\[\s*1\s*\]\)/.test(v)) return setMsg("msg-reto2", false, "❌ Convierte el trozo [1] con float(): float(partes[1])");
+  if (!/=\s*float/i.test(v)) return setMsg("msg-reto2", false, "❌ Guárdalo en la variable a: a = ...");
+  setMsg("msg-reto2", true, "✅ ¡Correcto! a = float(partes[1])");
+  showToast("🎯 ¡Reto superado!");
+};
+const CHOICE_OK = { "rq-deco": 0, "rq-dict": 0 };
+const CHOICE_WHY = {
+  "rq-deco": "✅ ¡Correcto! El decorador conecta el comando /start con tu función.",
+  "rq-dict": "✅ ¡Exacto! chat.id identifica a cada persona: sus notas no se mezclan."
+};
+document.querySelectorAll(".choice-row").forEach(row => {
+  row.querySelectorAll(".choice").forEach(b => {
+    b.onclick = () => {
+      if (b.disabled) return;
+      const okIdx = CHOICE_OK[row.id], msgId = "msg-" + row.id;
+      if (+b.dataset.i === okIdx) {
+        b.classList.add("good");
+        row.querySelectorAll(".choice").forEach(x => x.disabled = true);
+        setMsg(msgId, true, CHOICE_WHY[row.id]);
+        showToast("🎯 ¡Reto superado!");
+      } else {
+        b.classList.add("bad");
+        b.disabled = true;
+        setMsg(msgId, false, "❌ Esa no es. ¡Prueba otra vez!");
+      }
+    };
+  });
+});
+
+/* ---------- Descargar / copiar completo ---------- */
+function fullCode() { return document.querySelector("#bot-full-code code").textContent; }
+$("btn-copy-full").onclick = async () => {
+  try { await navigator.clipboard.writeText(fullCode()); }
+  catch(e) {
+    const ta = document.createElement("textarea");
+    ta.value = fullCode(); document.body.appendChild(ta);
+    ta.select(); try { document.execCommand("copy"); } catch(_){}
+    ta.remove();
+  }
+  showToast("✓ Código completo copiado");
+};
+$("btn-download").onclick = () => {
+  try {
+    const blob = new Blob([fullCode()], { type: "text/x-python;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "mi_bot.py";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+    showToast("⬇ ¡Descargado! Pon tu token y ejecuta: python mi_bot.py");
+  } catch(e) {
+    showToast("❌ Tu navegador bloqueó la descarga. Usa «Copiar»");
+  }
+};
+</script>
+</body>
+</html>

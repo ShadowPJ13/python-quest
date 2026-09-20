@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌐 Taller: tu primera web — PyQuest</title>
+<style>
+  :root {
+    --bg1: #0f172a; --bg2: #1e1b4b;
+    --card: #1e293b; --code-bg: #0b1120;
+    --py-blue: #4b8bbe; --py-yellow: #ffd43b;
+    --green: #22c55e; --red: #ef4444;
+    --text: #f1f5f9; --muted: #94a3b8; --border: #334155;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2) 60%, #312e81);
+    background-attachment: fixed;
+    color: var(--text); line-height: 1.7; padding-bottom: 60px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
+  header.top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(15,23,42,.95); backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border); padding: 10px 0;
+  }
+  .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .logo { font-size: 1.25rem; font-weight: 800; }
+  .logo span { color: var(--py-yellow); }
+  .top-links { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .btn-link {
+    display: inline-block; text-decoration: none; font-weight: 700; font-size: .85rem;
+    background: rgba(255,255,255,.08); border: 1px solid var(--border); color: var(--text);
+    border-radius: 10px; padding: 7px 14px;
+  }
+  .btn-link:hover { border-color: var(--py-yellow); }
+  .pill {
+    background: rgba(255,255,255,.08); border: 1px solid var(--border);
+    border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: .85rem;
+  }
+  .cover { text-align: center; padding: 40px 16px 10px; }
+  .cover h1 { font-size: 2.2rem; margin: 8px 0; }
+  .cover h1 span { color: var(--py-yellow); }
+  .cover p { color: var(--muted); max-width: 640px; margin: 0 auto; }
+  .progress-wrap { background: rgba(255,255,255,.08); border-radius: 999px; height: 14px; overflow: hidden; margin: 16px auto 4px; max-width: 500px; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--py-blue), var(--green)); width: 0%; transition: width .5s ease; border-radius: 999px; }
+
+  .chapter {
+    background: rgba(30,41,59,.92); border: 1px solid var(--border);
+    border-radius: 18px; padding: 26px; margin: 22px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  .cap-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .cap-num {
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 14px;
+    background: linear-gradient(135deg, #22c55e, #15803d);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: 800;
+  }
+  .chapter h2 { font-size: 1.4rem; }
+  .chapter h3 { font-size: 1.1rem; margin: 20px 0 8px; color: var(--py-yellow); }
+  .chapter p { margin: 8px 0; color: #dbe3ef; }
+  .chapter ul, .chapter ol { margin: 8px 0 8px 22px; color: #dbe3ef; }
+  .chapter li { margin: 4px 0; }
+  .chapter p code, .chapter li code, td code {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    background: rgba(255,255,255,.1); padding: 2px 7px; border-radius: 6px;
+    font-size: .9em; color: var(--py-yellow); white-space: nowrap;
+  }
+  pre.code {
+    position: relative; background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; overflow-x: auto; margin: 10px 0;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: .9rem; line-height: 1.65; color: #e2e8f0;
+  }
+  pre.code .copy {
+    position: absolute; top: 8px; right: 8px; cursor: pointer;
+    background: rgba(255,255,255,.1); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 4px 10px; font-size: .75rem; font-family: inherit;
+  }
+  pre.code .copy:hover { background: rgba(255,255,255,.2); }
+  .tok-k { color: #c792ea; font-weight: 700; }
+  .tok-s { color: #9ece6a; }
+  .tok-c { color: #5c6a7d; font-style: italic; }
+  .tok-n { color: #ff9e64; }
+  .tok-b { color: #7dcfff; }
+  table.ref { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: .9rem; }
+  table.ref th, table.ref td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+  table.ref th { background: rgba(255,255,255,.06); }
+  .tip, .warn { border-radius: 12px; padding: 12px 14px; margin: 12px 0; font-size: .93rem; }
+  .tip { background: rgba(75,139,190,.14); border: 1px solid var(--py-blue); }
+  .warn { background: rgba(239,68,68,.1); border: 1px solid var(--red); }
+
+  /* ---------- Navegador demo ---------- */
+  .browser {
+    background: #020617; border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; margin: 12px 0;
+  }
+  .url-bar {
+    display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+    background: rgba(255,255,255,.04); border-bottom: 1px solid var(--border);
+    font-size: .85rem;
+  }
+  .url-bar .dots { display: flex; gap: 6px; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .url {
+    flex: 1; background: #0b1120; border: 1px solid var(--border); border-radius: 999px;
+    padding: 6px 14px; font-family: ui-monospace, Consolas, monospace; font-size: .8rem;
+    color: var(--green); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .page { padding: 18px; max-width: 560px; margin: 0 auto; }
+  .page h2 { color: var(--py-yellow); margin-bottom: 10px; }
+  .wall-form { display: flex; gap: 8px; margin-bottom: 12px; }
+  .wall-form input {
+    flex: 1; background: #0b1120; border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); padding: 10px 12px; font-size: .9rem;
+  }
+  .wall-list { display: flex; flex-direction: column; gap: 8px; min-height: 120px; }
+  .wall-msg {
+    background: rgba(255,255,255,.05); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px; display: flex;
+    justify-content: space-between; align-items: center; gap: 10px;
+    animation: bubIn .25s ease; word-break: break-word;
+  }
+  @keyframes bubIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: none;} }
+  .wall-msg button {
+    flex: 0 0 auto; cursor: pointer; border: none; border-radius: 8px;
+    background: var(--red); color: #fff; padding: 6px 12px; font-weight: 700;
+  }
+
+  .mini-btn {
+    cursor: pointer; border: 1px solid var(--border); font-weight: 700;
+    border-radius: 8px; padding: 9px 16px; font-size: .85rem;
+    background: rgba(255,255,255,.08); color: var(--text); white-space: nowrap;
+  }
+  .mini-btn:hover { border-color: var(--py-yellow); }
+  .mini-btn.green { background: var(--green); color: #052e16; border: none; }
+  .mini-btn.yellow { background: var(--py-yellow); color: #1e293b; border: none; }
+  .mini-btn:disabled { opacity: .5; cursor: default; }
+
+  /* ---------- Retos ---------- */
+  .reto {
+    background: rgba(255,212,59,.06); border: 1px dashed var(--py-yellow);
+    border-radius: 12px; padding: 14px; margin: 14px 0;
+  }
+  .reto textarea {
+    width: 100%; min-height: 60px; margin: 10px 0;
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+    color: #e2e8f0; font-family: ui-monospace, Consolas, monospace;
+    font-size: .9rem; padding: 10px; resize: vertical;
+  }
+  .reto-msg { font-size: .9rem; margin-top: 8px; font-weight: 600; min-height: 1.4em; }
+  .reto-msg.ok { color: var(--green); }
+  .reto-msg.err { color: var(--red); }
+  .choice-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .choice {
+    cursor: pointer; background: rgba(255,255,255,.06); border: 2px solid var(--border);
+    border-radius: 10px; padding: 9px 14px; color: var(--text); font-size: .85rem;
+  }
+  .choice:hover:not(:disabled) { border-color: var(--py-blue); }
+  .choice.good { border-color: var(--green); background: rgba(34,197,94,.12); }
+  .choice.bad { border-color: var(--red); background: rgba(239,68,68,.12); }
+  .choice:disabled { cursor: default; }
+
+  .done-check {
+    display: flex; align-items: center; gap: 10px; margin-top: 16px;
+    background: rgba(34,197,94,.08); border: 1px solid var(--green);
+    border-radius: 12px; padding: 12px 14px; cursor: pointer; font-weight: 700;
+  }
+  .done-check input { width: 20px; height: 20px; accent-color: var(--green); cursor: pointer; }
+  .next-row { text-align: right; margin-top: 12px; }
+  .next-row a { color: var(--py-yellow); font-weight: 700; text-decoration: none; }
+  .dl-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  #toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--card); border: 1px solid var(--green); color: var(--text);
+    border-radius: 999px; padding: 10px 22px; font-weight: 700; font-size: .9rem;
+    opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 70;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5); max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  footer { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 30px; }
+  footer a { color: var(--py-yellow); }
+  @media (max-width: 560px) {
+    .cover h1 { font-size: 1.7rem; }
+    .chapter { padding: 18px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="logo">🌐 Taller <span>Web</span></div>
+      <div class="top-links">
+        <span class="pill">🏗 <span id="tprog">0/5</span></span>
+        <a class="btn-link" href="index.html">🎮 Juego</a>
+        <a class="btn-link" href="manual.html">📖 Manual</a>
+        <a class="btn-link" href="taller.html">🔨 Taller App</a>
+        <a class="btn-link" href="taller-bot.html">🤖 Taller Bot</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="cover">
+    <div style="font-size:3.5rem">🌐</div>
+    <h1>Construye tu <span>primera web</span></h1>
+    <p>Un <b>muro de mensajes</b> con Python y Flask que funciona en el navegador. Pruébalo aquí abajo, constrúyelo en <b>5 pasos</b> y descubre cómo publicar tu app en internet. 🚀</p>
+    <div class="progress-wrap"><div class="progress-bar" id="tbar"></div></div>
+  </div>
+
+  <!-- ============ DEMO ============ -->
+  <section class="chapter" id="demo">
+    <div class="cap-head"><span class="cap-num">👀</span><h2>La meta: pruébala aquí mismo</h2></div>
+    <p>Esto es lo que vas a construir (simulado aquí mismo). ¡Escribe un mensaje y añádelo, bórralo, juega!</p>
+    <div class="browser">
+      <div class="url-bar">
+        <div class="dots"><span class="dot" style="background:#ef4444"></span><span class="dot" style="background:#f59e0b"></span><span class="dot" style="background:#22c55e"></span></div>
+        <div class="url">🔒 localhost:5000</div>
+      </div>
+      <div class="page">
+        <h2>📌 Muro de mensajes</h2>
+        <form class="wall-form" id="wall-form">
+          <input id="wall-input" maxlength="140" placeholder="Escribe un mensaje…" autocomplete="off">
+          <button class="mini-btn yellow" type="submit">Añadir</button>
+        </form>
+        <div class="wall-list" id="wall-list"></div>
+      </div>
+    </div>
+    <div class="tip">💡 Tu web real hará exactamente esto, pero servida por tu programa Python con Flask. ¡Vamos a crearla!</div>
+    <div class="next-row"><a href="#paso1">Empezar el paso 1 →</a></div>
+  </section>
+
+  <!-- ============ PASO 1 ============ -->
+  <section class="chapter" id="paso1">
+    <div class="cap-head"><span class="cap-num">1</span><h2>Tu servidor en 7 líneas</h2></div>
+    <p>Una web es un programa que <b>escucha peticiones</b> y <b>responde páginas</b>. Primero instala Flask en una terminal:</p>
+    <pre class="code"><code>pip install flask</code></pre>
+    <p>Ahora crea <code>app.py</code> con esto, ejecútalo (<code>python app.py</code>) y abre <code>localhost:5000</code> en tu navegador:</p>
+    <pre class="code"><code>from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def inicio():
+    return "&lt;h1&gt;¡Mi primera web con Python! 🐍&lt;/h1&gt;"
+
+if __name__ == "__main__":
+    app.run(debug=True)</code></pre>
+    <div class="tip">💡 <code>localhost:5000</code> significa «mi propio ordenador, puerta 5000». <code>debug=True</code> recarga solo al guardar cambios. Para parar el servidor: <code>Ctrl + C</code> en la terminal.</div>
+    <label class="done-check"><input type="checkbox" data-step="0"> ✅ Veo mi primera página en el navegador</label>
+    <div class="next-row"><a href="#paso2">Siguiente paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 2 ============ -->
+  <section class="chapter" id="paso2">
+    <div class="cap-head"><span class="cap-num">2</span><h2>Rutas: las calles de tu web</h2></div>
+    <p>Cada <code>@app.route(...)</code> es una «calle»: cuando alguien la visita, se ejecuta su función. ¡Igual que los comandos del bot! 🤖</p>
+    <pre class="code"><code>@app.route("/adios")
+def adios():
+    return "&lt;h1&gt;¡Adiós! 👋&lt;/h1&gt;"
+
+@app.route("/saludo/&lt;nombre&gt;")
+def saludo(nombre):
+    return f"&lt;h1&gt;¡Hola, {nombre}! 👋&lt;/h1&gt;"</code></pre>
+    <div class="tip">💡 La magia: <code>&lt;nombre&gt;</code> captura lo que escriban en la dirección y lo entrega como parámetro. <code>/saludo/Ana</code> → <code>nombre = "Ana"</code>.</div>
+    <div class="reto">
+      <b>🎯 Mini-reto 1:</b> ¿qué se verá al visitar <code>/saludo/Ana</code>?
+      <div class="choice-row" id="rq-salu">
+        <button class="choice" data-i="0">¡Hola, Ana! 👋</button>
+        <button class="choice" data-i="1">¡Hola, nombre! 👋</button>
+        <button class="choice" data-i="2">Error 404</button>
+      </div>
+      <div class="reto-msg" id="msg-rq-salu"></div>
+    </div>
+    <label class="done-check"><input type="checkbox" data-step="1"> ✅ Mi web tiene varias rutas</label>
+    <div class="next-row"><a href="#paso3">Siguiente paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 3 ============ -->
+  <section class="chapter" id="paso3">
+    <div class="cap-head"><span class="cap-num">3</span><h2>Plantillas: diseño separado</h2></div>
+    <p>Mezclar HTML dentro del Python se vuelve un lío. La solución: guardar el diseño en archivos <b>plantilla</b> dentro de una carpeta llamada <code>templates</code>, y rellenar huecos con <code>{{ ... }}</code>:</p>
+    <p><b>Archivo <code>templates/saludo.html</code>:</b></p>
+    <pre class="code"><code>&lt;h1&gt;¡Hola, {{ nombre }}! 👋&lt;/h1&gt;
+&lt;p&gt;Esta página viene de un archivo.&lt;/p&gt;</code></pre>
+    <p><b>En <code>app.py</code>:</b></p>
+    <pre class="code"><code>from flask import render_template
+
+@app.route("/saludo/&lt;nombre&gt;")
+def saludo(nombre):
+    return render_template("saludo.html", nombre=nombre)</code></pre>
+    <div class="tip">💡 Python y diseño, cada uno en su archivo: <code>render_template</code> une la plantilla con tus variables. ¡Así trabajan los profesionales!</div>
+    <div class="reto">
+      <b>🎯 Mini-reto 2:</b> ¿qué hace <code>{{ nombre }}</code> en una plantilla?
+      <div class="choice-row" id="rq-jinja">
+        <button class="choice" data-i="0">Muestra el valor de la variable nombre</button>
+        <button class="choice" data-i="1">Crea una variable nueva</button>
+        <button class="choice" data-i="2">Es un comentario invisible</button>
+      </div>
+      <div class="reto-msg" id="msg-rq-jinja"></div>
+    </div>
+    <label class="done-check"><input type="checkbox" data-step="2"> ✅ Uso plantillas con variables</label>
+    <div class="next-row"><a href="#paso4">Siguiente paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 4 ============ -->
+  <section class="chapter" id="paso4">
+    <div class="cap-head"><span class="cap-num">4</span><h2>Formularios: escucha al visitante</h2></div>
+    <p>Para recibir datos (como un mensaje nuevo) necesitas un <b>formulario</b> y una ruta que lo lea. Hay dos métodos:</p>
+    <table class="ref">
+      <tr><th>Método</th><th>Para qué</th></tr>
+      <tr><td><code>GET</code></td><td><b>Pedir</b> una página (lo normal al navegar)</td></tr>
+      <tr><td><code>POST</code></td><td><b>Enviar</b> datos (formularios)</td></tr>
+    </table>
+    <p><b>El formulario (en la plantilla):</b></p>
+    <pre class="code"><code>&lt;form action="/nuevo" method="post"&gt;
+  &lt;input type="text" name="texto" placeholder="Escribe…"&gt;
+  &lt;button&gt;Añadir&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+    <p><b>La ruta que lo recibe (en <code>app.py</code>):</b></p>
+    <pre class="code"><code>from flask import request, redirect
+
+MENSAJES = []
+
+@app.route("/nuevo", methods=["POST"])
+def nuevo():
+    texto = request.form.get("texto", "").strip()
+    if texto:
+        MENSAJES.append(texto)
+    return redirect("/")</code></pre>
+    <div class="tip">💡 <code>request.form</code> trae lo escrito (la clave es el <code>name</code> del input). Y <code>redirect("/")</code> devuelve al muro tras guardar.</div>
+    <div class="reto">
+      <b>🎯 Mini-reto 3:</b> escribe la línea que lee el campo <code>texto</code> del formulario en la variable <code>texto</code>:
+      <textarea id="reto1" placeholder="texto = ..." spellcheck="false"></textarea>
+      <button class="mini-btn yellow" id="btn-reto1">Comprobar</button>
+      <div class="reto-msg" id="msg-reto1"></div>
+    </div>
+    <label class="done-check"><input type="checkbox" data-step="3"> ✅ Mi web recibe formularios</label>
+    <div class="next-row"><a href="#paso5">Último paso →</a></div>
+  </section>
+
+  <!-- ============ PASO 5 ============ -->
+  <section class="chapter" id="paso5">
+    <div class="cap-head"><span class="cap-num">5</span><h2>El muro completo + ¡publícala! 🚀</h2></div>
+    <h3>🗑️ Borrar con rutas dinámicas</h3>
+    <p>Cada mensaje tendrá su botón de borrar. La ruta captura el índice como <b>número</b> con <code>&lt;int:indice&gt;</code>:</p>
+    <pre class="code"><code>@app.route("/borrar/&lt;int:indice&gt;", methods=["POST"])
+def borrar(indice):
+    if 0 &lt;= indice &lt; len(MENSAJES):
+        MENSAJES.pop(indice)
+    return redirect("/")</code></pre>
+    <div class="reto">
+      <b>🎯 Mini-reto 4:</b> ¿por qué redirigimos con <code>redirect</code> después de guardar o borrar?
+      <div class="choice-row" id="rq-prg">
+        <button class="choice" data-i="0">Para no duplicar la acción al recargar</button>
+        <button class="choice" data-i="1">Porque Flask obliga siempre</button>
+        <button class="choice" data-i="2">Para que vaya más rápido</button>
+      </div>
+      <div class="reto-msg" id="msg-rq-prg"></div>
+    </div>
+
+    <h3>📦 Los archivos finales</h3>
+    <p>Tu proyecto debe quedar con esta estructura (la plantilla va <b>dentro</b> de la carpeta <code>templates</code>):</p>
+    <pre class="code"><code>mi_web/
+├── app.py
+└── templates/
+    └── index.html</code></pre>
+    <div class="dl-row">
+      <button class="mini-btn yellow" id="btn-copy-app">⧉ Copiar app.py</button>
+      <button class="mini-btn green" id="btn-dl-app">⬇ Descargar app.py</button>
+      <button class="mini-btn yellow" id="btn-copy-tpl">⧉ Copiar index.html</button>
+      <button class="mini-btn green" id="btn-dl-tpl">⬇ Descargar index.html</button>
+    </div>
+    <p><b><code>app.py</code>:</b></p>
+    <pre class="code" id="web-app-code"><code># app.py — ¡Mi primera web con Flask! 🌐
+from flask import Flask, render_template, request, redirect
+
+app = Flask(__name__)
+
+MENSAJES = ["¡Bienvenido al muro! 🎉"]
+
+
+@app.route("/")
+def inicio():
+    return render_template("index.html", mensajes=MENSAJES)
+
+
+@app.route("/saludo/&lt;nombre&gt;")
+def saludo(nombre):
+    return f"&lt;h1&gt;¡Hola, {nombre}! 👋&lt;/h1&gt;&lt;p&gt;&lt;a href='/'&gt;Volver al muro&lt;/a&gt;&lt;/p&gt;"
+
+
+@app.route("/nuevo", methods=["POST"])
+def nuevo():
+    texto = request.form.get("texto", "").strip()
+    if texto:
+        MENSAJES.append(texto)
+    return redirect("/")
+
+
+@app.route("/borrar/&lt;int:indice&gt;", methods=["POST"])
+def borrar(indice):
+    if 0 &lt;= indice &lt; len(MENSAJES):
+        MENSAJES.pop(indice)
+    return redirect("/")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)</code></pre>
+    <p><b><code>templates/index.html</code>:</b></p>
+    <pre class="code" id="web-template-code"><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;title&gt;📌 Muro de mensajes&lt;/title&gt;
+&lt;style&gt;
+  body { font-family: system-ui, sans-serif; background: #0f172a; color: #f1f5f9; max-width: 600px; margin: 40px auto; padding: 0 16px; }
+  h1 { color: #ffd43b; }
+  .msg { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 10px 14px; margin: 8px 0; display: flex; justify-content: space-between; gap: 10px; }
+  form.add { display: flex; gap: 8px; margin: 16px 0; }
+  input[type=text] { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0b1120; color: white; }
+  button { cursor: pointer; border: none; border-radius: 8px; padding: 10px 16px; font-weight: bold; background: #ffd43b; }
+  button.del { background: #ef4444; color: white; padding: 6px 12px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;📌 Muro de mensajes&lt;/h1&gt;
+  &lt;form class="add" action="/nuevo" method="post"&gt;
+    &lt;input type="text" name="texto" placeholder="Escribe un mensaje…" maxlength="140"&gt;
+    &lt;button&gt;Añadir&lt;/button&gt;
+  &lt;/form&gt;
+  {% for m in mensajes %}
+  &lt;div class="msg"&gt;
+    &lt;span&gt;{{ m }}&lt;/span&gt;
+    &lt;form action="/borrar/{{ loop.index0 }}" method="post"&gt;
+      &lt;button class="del"&gt;✕&lt;/button&gt;
+    &lt;/form&gt;
+  &lt;/div&gt;
+  {% endfor %}
+  &lt;p&gt;Prueba también: &lt;a href="/saludo/Ana" style="color:#ffd43b"&gt;/saludo/Ana&lt;/a&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+    <h3>▶️ Ejecútala</h3>
+    <ol>
+      <li>Crea la carpeta <code>mi_web</code> con los dos archivos (plantilla dentro de <code>templates/</code>).</li>
+      <li>En una terminal, en esa carpeta: <code>python app.py</code></li>
+      <li>Abre <code>localhost:5000</code> en tu navegador. ¡Tu web vive! 🎉</li>
+    </ol>
+    <h3>🌍 Publícala en internet (gratis)</h3>
+    <p>Tu web ahora solo existe en tu PC. Para que cualquiera la visite, súbela a un hosting gratuito como <b>Render</b> o <b>PythonAnywhere</b>: creas cuenta, subes tus archivos, pones <code>flask</code> en los requisitos… ¡y te dan una dirección pública! (Cada plataforma tiene su guía paso a paso.)</p>
+    <h3>🚀 Retos de ampliación</h3>
+    <ol>
+      <li><b>Memoria:</b> guarda los mensajes en un archivo (¡como en el <a href="taller.html" style="color:var(--py-yellow); font-weight:700">taller de la app</a>!) para no perderlos al reiniciar.</li>
+      <li><b>API JSON:</b> crea <code>/api/mensajes</code> que devuelva la lista con <code>jsonify</code>.</li>
+      <li><b>Más páginas:</b> añade <code>/about</code> contando quién eres.</li>
+      <li><b>Estilo:</b> cambia colores, añade emojis, hazla tuya. 🎨</li>
+    </ol>
+    <label class="done-check"><input type="checkbox" data-step="4"> ✅ ¡Mi web funciona en el navegador! 🌐🎉</label>
+    <div class="dl-row" style="margin-top:16px">
+      <a class="btn-link" href="index.html" style="display:inline-block; text-decoration:none; font-weight:700; font-size:.85rem; background:rgba(255,255,255,.08); border:1px solid var(--border); color:var(--text); border-radius:10px; padding:9px 16px;">🎮 Volver al juego</a>
+      <a class="btn-link" href="manual.html" style="display:inline-block; text-decoration:none; font-weight:700; font-size:.85rem; background:rgba(255,255,255,.08); border:1px solid var(--border); color:var(--text); border-radius:10px; padding:9px 16px;">📖 Ir al manual</a>
+      <button class="mini-btn" id="btn-treset">↺ Reiniciar taller</button>
+    </div>
+  </section>
+
+  <footer>
+    Hecho con 🐍 para aprender Python · <a href="index.html">PyQuest 🎮</a> · <a href="manual.html">Manual 📖</a>
+  </footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* ---------- Storage seguro ---------- */
+const store = {
+  mem: {},
+  get(k, fb) {
+    try { const v = localStorage.getItem(k); return v === null ? fb : JSON.parse(v); }
+    catch(e) { return (k in this.mem) ? this.mem[k] : fb; }
+  },
+  set(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); }
+    catch(e) { this.mem[k] = v; }
+  }
+};
+const $ = id => document.getElementById(id);
+
+/* ---------- Resaltado Python + copiar ---------- */
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+const PY_RE = /(#[^\n]*)|((?:[fFrR])?(?:"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'))|\b(True|False|None|and|or|not|if|elif|else|for|while|in|def|return|import|from|as|class|try|except|with|lambda|pass|break|continue|is)\b|\b(print|len|range|str|int|float|bool|type|input|list|dict|set|append|sum|min|max|abs|round|open|enumerate|Flask|request|redirect|render_template)\b|(\b\d+(?:\.\d+)?\b)/g;
+function highlight(src) {
+  let out = "", last = 0, m;
+  PY_RE.lastIndex = 0;
+  while ((m = PY_RE.exec(src)) !== null) {
+    out += esc(src.slice(last, m.index));
+    const tok = m[0];
+    let cls = null;
+    if (m[1]) cls = "tok-c";
+    else if (m[2]) cls = "tok-s";
+    else if (m[3]) cls = "tok-k";
+    else if (m[4]) cls = "tok-b";
+    else if (m[5]) cls = "tok-n";
+    out += cls ? `<span class="${cls}">${esc(tok)}</span>` : esc(tok);
+    last = m.index + tok.length;
+  }
+  return out + esc(src.slice(last));
+}
+document.querySelectorAll("pre.code code").forEach(code => {
+  code.innerHTML = highlight(code.textContent);
+});
+function copyText(text, btn) {
+  const done = () => {
+    if (btn) { const old = btn.textContent; btn.textContent = "✓ ¡copiado!"; setTimeout(() => btn.textContent = old, 1500); }
+    showToast("✓ Copiado");
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallback());
+  } else fallback();
+  function fallback() {
+    const ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); try { document.execCommand("copy"); } catch(_){}
+    ta.remove(); done();
+  }
+}
+document.querySelectorAll("pre.code").forEach(pre => {
+  const btn = document.createElement("button");
+  btn.className = "copy"; btn.textContent = "⧉ copiar";
+  btn.onclick = () => copyText(pre.querySelector("code").textContent, btn);
+  pre.appendChild(btn);
+});
+
+/* ---------- Toast ---------- */
+let toastTimer = null;
+function showToast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+/* ---------- Progreso del taller ---------- */
+const NSTEPS = 5;
+let tstate = store.get("pyq_taller_web", null);
+if (!tstate || !Array.isArray(tstate.checks) || tstate.checks.length !== NSTEPS)
+  tstate = { checks: [false,false,false,false,false] };
+function renderTaller() {
+  document.querySelectorAll("[data-step]").forEach(c => { c.checked = !!tstate.checks[+c.dataset.step]; });
+  const n = tstate.checks.filter(Boolean).length;
+  $("tprog").textContent = n + "/" + NSTEPS;
+  $("tbar").style.width = (n / NSTEPS * 100) + "%";
+}
+document.querySelectorAll("[data-step]").forEach(c => {
+  c.addEventListener("change", () => {
+    tstate.checks[+c.dataset.step] = c.checked;
+    store.set("pyq_taller_web", tstate);
+    renderTaller();
+    if (tstate.checks.every(Boolean)) showToast("🎉 ¡Taller completado! Tu web vive 🌐");
+    else if (c.checked) showToast("✓ Paso guardado");
+  });
+});
+$("btn-treset").onclick = () => {
+  tstate = { checks: [false,false,false,false,false] };
+  store.set("pyq_taller_web", tstate);
+  renderTaller();
+  showToast("Taller reiniciado");
+};
+renderTaller();
+
+/* ---------- Muro demo ---------- */
+const wall = ["¡Bienvenido al muro! 🎉"];
+const wallList = $("wall-list");
+function renderWall() {
+  wallList.innerHTML = "";
+  if (!wall.length) wallList.innerHTML = '<div style="color:var(--muted)">(sin mensajes… ¡escribe el primero!)</div>';
+  wall.forEach((m, i) => {
+    const d = document.createElement("div");
+    d.className = "wall-msg";
+    const s = document.createElement("span");
+    s.textContent = m;
+    const b = document.createElement("button");
+    b.textContent = "✕";
+    b.title = "Borrar";
+    b.onclick = () => { wall.splice(i, 1); renderWall(); };
+    d.appendChild(s); d.appendChild(b);
+    wallList.appendChild(d);
+  });
+}
+$("wall-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = $("wall-input").value.trim();
+  if (!v) return;
+  wall.push(v);
+  $("wall-input").value = "";
+  renderWall();
+});
+renderWall();
+
+/* ---------- Retos ---------- */
+function setMsg(id, ok, text) {
+  const m = $(id);
+  m.className = "reto-msg " + (ok ? "ok" : "err");
+  m.textContent = text;
+}
+$("btn-reto1").onclick = () => {
+  const v = $("reto1").value;
+  const bracket = /request\s*\.\s*form\s*\[\s*["']texto["']\s*\]/.test(v);
+  const get = /request\s*\.\s*form\s*\.\s*get\s*\(\s*["']texto["']/.test(v);
+  if (!bracket && !get) return setMsg("msg-reto1", false, '❌ Lee el campo con request.form["texto"] (o .get("texto", ...)).');
+  if (!/texto\s*=/.test(v)) return setMsg("msg-reto1", false, "❌ Guárdalo en la variable texto: texto = ...");
+  setMsg("msg-reto1", true, "✅ ¡Correcto! Así se leen los formularios.");
+  showToast("🎯 ¡Reto superado!");
+};
+const CHOICE_OK = { "rq-salu": 0, "rq-jinja": 0, "rq-prg": 0 };
+const CHOICE_WHY = {
+  "rq-salu": "✅ ¡Correcto! <nombre> captura «Ana» y llega como parámetro.",
+  "rq-jinja": "✅ ¡Correcto! {{ ... }} muestra valores en la plantilla.",
+  "rq-prg": "✅ ¡Exacto! Sin redirect, recargar repetiría el envío (mensajes duplicados)."
+};
+document.querySelectorAll(".choice-row").forEach(row => {
+  row.querySelectorAll(".choice").forEach(b => {
+    b.onclick = () => {
+      if (b.disabled) return;
+      const okIdx = CHOICE_OK[row.id], msgId = "msg-" + row.id;
+      if (+b.dataset.i === okIdx) {
+        b.classList.add("good");
+        row.querySelectorAll(".choice").forEach(x => x.disabled = true);
+        setMsg(msgId, true, CHOICE_WHY[row.id]);
+        showToast("🎯 ¡Reto superado!");
+      } else {
+        b.classList.add("bad");
+        b.disabled = true;
+        setMsg(msgId, false, "❌ Esa no es. ¡Prueba otra vez!");
+      }
+    };
+  });
+});
+
+/* ---------- Descargas ---------- */
+function downloadFile(filename, text) {
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+}
+const appCode = () => document.querySelector("#web-app-code code").textContent;
+const tplCode = () => document.querySelector("#web-template-code code").textContent;
+$("btn-copy-app").onclick = e => copyText(appCode(), e.target);
+$("btn-copy-tpl").onclick = e => copyText(tplCode(), e.target);
+$("btn-dl-app").onclick = () => {
+  try { downloadFile("app.py", appCode()); showToast("⬇ ¡Descargado! Ejecútalo con: python app.py"); }
+  catch(e) { showToast("❌ Tu navegador bloqueó la descarga. Usa «Copiar»"); }
+};
+$("btn-dl-tpl").onclick = () => {
+  try { downloadFile("index.html", tplCode()); showToast("⬇ ¡Descargado! Guárdalo en templates/"); }
+  catch(e) { showToast("❌ Tu navegador bloqueó la descarga. Usa «Copiar»"); }
+};
+</script>
+</body>
+</html>

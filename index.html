@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyQuest — Aprende Python jugando 🐍</title>
+<style>
+  :root {
+    --bg1: #0f172a;
+    --bg2: #1e1b4b;
+    --card: #1e293b;
+    --card2: #0f172a;
+    --py-blue: #4b8bbe;
+    --py-yellow: #ffd43b;
+    --green: #22c55e;
+    --red: #ef4444;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: #334155;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2) 60%, #312e81);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+
+  /* ---------- Header ---------- */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0; gap: 10px; flex-wrap: wrap;
+  }
+  .logo { font-size: 1.4rem; font-weight: 800; cursor: pointer; user-select: none; }
+  .logo span { color: var(--py-yellow); }
+  .stats { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .pill {
+    background: rgba(255,255,255,.08); border: 1px solid var(--border);
+    border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: .9rem;
+  }
+  .pill small { font-weight: 400; color: var(--muted); }
+  .icon-btn {
+    background: rgba(255,255,255,.08); border: 1px solid var(--border);
+    border-radius: 999px; padding: 6px 12px; cursor: pointer; color: var(--text);
+    font-size: .95rem;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,.15); }
+
+  /* ---------- Screens ---------- */
+  .screen { display: none; animation: fadeIn .3s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: none;} }
+
+  .hero {
+    text-align: center; padding: 48px 20px 30px;
+  }
+  .hero .snake { font-size: 4rem; animation: wiggle 2.5s ease-in-out infinite; display: inline-block; }
+  @keyframes wiggle { 0%,100% { transform: rotate(-8deg);} 50% { transform: rotate(8deg);} }
+  .hero h1 { font-size: 2.6rem; margin: 10px 0 6px; }
+  .hero h1 span { color: var(--py-yellow); }
+  .hero p { color: var(--muted); font-size: 1.1rem; margin-bottom: 8px; }
+  .card {
+    background: rgba(30,41,59,.9); border: 1px solid var(--border);
+    border-radius: 16px; padding: 22px; margin: 14px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 10px; margin-top: 14px; }
+  .feature { background: rgba(255,255,255,.05); border-radius: 12px; padding: 12px; font-size: .9rem; text-align: center; }
+  .feature b { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+
+  .btn {
+    display: inline-block; border: none; cursor: pointer; font-weight: 800;
+    border-radius: 12px; padding: 13px 26px; font-size: 1.05rem;
+    transition: transform .08s ease, filter .15s ease;
+  }
+  .btn:hover { filter: brightness(1.1); }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--py-yellow); color: #1e293b; }
+  .btn-green { background: var(--green); color: #052e16; }
+  .btn-ghost { background: rgba(255,255,255,.1); color: var(--text); border: 1px solid var(--border); }
+  .btn-danger { background: transparent; color: var(--muted); border: 1px solid var(--border); font-size: .85rem; padding: 8px 16px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .center { text-align: center; }
+
+  /* ---------- Map ---------- */
+  .progress-wrap { background: rgba(255,255,255,.08); border-radius: 999px; height: 14px; overflow: hidden; margin: 10px 0 4px; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--py-blue), var(--green)); width: 0%; transition: width .5s ease; border-radius: 999px; }
+  .world-title { margin: 22px 0 10px; font-size: 1.2rem; }
+  .world-title small { color: var(--muted); font-weight: 400; font-size: .85rem; display: block; }
+  .levels { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 10px; }
+  .level-btn {
+    background: rgba(255,255,255,.06); border: 2px solid var(--border);
+    border-radius: 14px; padding: 14px 10px; cursor: pointer; color: var(--text);
+    text-align: center; transition: all .15s ease;
+  }
+  .level-btn:not(.locked):hover { border-color: var(--py-yellow); transform: translateY(-2px); }
+  .level-btn .num { font-size: 1.6rem; font-weight: 800; }
+  .level-btn .name { font-size: .8rem; color: var(--muted); margin: 4px 0; min-height: 2em; }
+  .level-btn .stars { color: var(--py-yellow); font-size: .9rem; letter-spacing: 2px; }
+  .level-btn .stars .off { color: #475569; }
+  .level-btn.locked { opacity: .45; cursor: not-allowed; }
+  .level-btn.done { border-color: var(--green); }
+
+  /* ---------- Game ---------- */
+  .level-head { display: flex; align-items: center; gap: 10px; margin: 16px 0 4px; flex-wrap: wrap; }
+  .level-head h2 { font-size: 1.35rem; }
+  .tag {
+    font-size: .75rem; font-weight: 700; padding: 3px 10px; border-radius: 999px;
+    background: rgba(75,139,190,.25); border: 1px solid var(--py-blue); color: #bae6fd;
+  }
+  .tag.diff { background: rgba(255,212,59,.15); border-color: var(--py-yellow); color: var(--py-yellow); }
+  .story {
+    background: rgba(75,139,190,.12); border-left: 4px solid var(--py-blue);
+    border-radius: 0 12px 12px 0; padding: 12px 14px; margin: 12px 0; font-style: italic; color: #cbd5e1;
+  }
+  .instructions { margin: 10px 0; line-height: 1.55; }
+  .instructions code, .quiz-code {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  .instructions code { background: rgba(255,255,255,.1); padding: 2px 7px; border-radius: 6px; font-size: .92em; color: var(--py-yellow); }
+  pre.quiz-code {
+    background: #0b1120; border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px; overflow-x: auto; margin: 10px 0; font-size: .95rem; line-height: 1.6; color: #e2e8f0;
+  }
+  .editor-wrap {
+    background: #0b1120; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 10px 0;
+  }
+  .editor-bar {
+    display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+    background: rgba(255,255,255,.04); border-bottom: 1px solid var(--border); font-size: .8rem; color: var(--muted);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  textarea.code {
+    width: 100%; min-height: 150px; background: transparent; border: none; outline: none;
+    color: #e2e8f0; font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: .95rem; line-height: 1.65; padding: 14px; resize: vertical; tab-size: 4;
+  }
+  .console {
+    background: #020617; border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 14px; margin: 10px 0; font-family: ui-monospace, Consolas, monospace;
+    font-size: .9rem; min-height: 52px; white-space: pre-wrap; line-height: 1.6;
+  }
+  .console .ok { color: var(--green); }
+  .console .err { color: var(--red); }
+  .console .dim { color: var(--muted); }
+  .console .out { color: #e2e8f0; }
+
+  .options { display: grid; gap: 10px; margin: 12px 0; }
+  .option {
+    background: rgba(255,255,255,.06); border: 2px solid var(--border); border-radius: 12px;
+    padding: 12px 14px; cursor: pointer; font-family: ui-monospace, Consolas, monospace;
+    font-size: .95rem; color: var(--text); text-align: left; transition: all .12s ease; white-space: pre-wrap;
+  }
+  .option:hover:not(:disabled) { border-color: var(--py-blue); }
+  .option.selected { border-color: var(--py-yellow); background: rgba(255,212,59,.1); }
+  .option.correct { border-color: var(--green); background: rgba(34,197,94,.12); }
+  .option.wrong { border-color: var(--red); background: rgba(239,68,68,.12); }
+  .option:disabled { cursor: default; opacity: .9; }
+
+  .order-pool, .order-answer { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+  .order-answer { min-height: 60px; background: rgba(255,255,255,.03); border: 2px dashed var(--border); border-radius: 12px; padding: 10px; }
+  .order-line {
+    background: #0b1120; border: 1px solid var(--py-blue); border-radius: 10px;
+    padding: 10px 12px; font-family: ui-monospace, Consolas, monospace; font-size: .9rem;
+    cursor: pointer; text-align: left; color: var(--text); width: 100%;
+  }
+  .order-line:hover { background: rgba(75,139,190,.2); }
+  .order-pool .order-line { border-style: solid; }
+  .order-hint { font-size: .85rem; color: var(--muted); }
+
+  .hint-box {
+    display: none; background: rgba(255,212,59,.1); border: 1px solid var(--py-yellow);
+    border-radius: 12px; padding: 12px 14px; margin: 10px 0; font-size: .92rem;
+  }
+  .hint-box.show { display: block; animation: fadeIn .3s ease; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7);
+    align-items: center; justify-content: center; padding: 16px; z-index: 50;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 30px; max-width: 480px; width: 100%; text-align: center;
+    animation: popIn .35s cubic-bezier(.2,1.4,.4,1);
+    max-height: 90vh; overflow-y: auto;
+  }
+  @keyframes popIn { from { transform: scale(.8); opacity: 0;} to { transform: scale(1); opacity: 1;} }
+  .modal .big-stars { font-size: 2.6rem; letter-spacing: 6px; margin: 6px 0 2px; }
+  .modal .big-stars .off { color: #475569; }
+  .modal .big-stars .on { color: var(--py-yellow); display: inline-block; animation: starPop .5s backwards; }
+  .modal .big-stars .on:nth-child(2) { animation-delay: .15s; }
+  .modal .big-stars .on:nth-child(3) { animation-delay: .3s; }
+  @keyframes starPop { from { transform: scale(0) rotate(-40deg);} to { transform: scale(1) rotate(0);} }
+  .modal h2 { margin: 6px 0; }
+  .modal .pts { font-size: 1.3rem; font-weight: 800; color: var(--green); margin: 4px 0 10px; }
+  .modal .concept { background: rgba(255,255,255,.05); border-radius: 12px; padding: 12px; font-size: .92rem; text-align: left; line-height: 1.55; margin: 10px 0 16px; }
+  .modal .concept b { color: var(--py-yellow); }
+
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
+  .card.boss { border-color: var(--red); box-shadow: 0 0 28px rgba(239,68,68,.35); }
+  .level-btn.boss:not(.locked) { border-color: var(--red); }
+
+  /* ---------- Logros ---------- */
+  .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 10px; margin-top: 12px; }
+  .ach { background: rgba(255,212,59,.08); border: 1px solid var(--py-yellow); border-radius: 12px; padding: 12px 8px; text-align: center; }
+  .ach.locked { background: rgba(255,255,255,.03); border-color: var(--border); opacity: .55; }
+  .ach-icon { font-size: 1.8rem; }
+  .ach-name { font-weight: 800; font-size: .85rem; margin-top: 4px; }
+  .ach-desc { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+
+  /* ---------- Guardado / utilidades ---------- */
+  #save-info { color: var(--muted); font-size: .95rem; margin: 6px 0 4px; line-height: 1.6; }
+  .btn-red { background: var(--red); color: #fff; }
+  #u-body { text-align: left; }
+  #u-body p { margin: 8px 0; line-height: 1.6; font-size: .95rem; }
+  #u-code {
+    width: 100%; min-height: 110px; margin-top: 8px;
+    background: #020617; border: 1px solid var(--border); border-radius: 10px;
+    color: var(--py-yellow); font-family: ui-monospace, Consolas, monospace;
+    font-size: .78rem; padding: 10px; resize: vertical; word-break: break-all;
+  }
+  #toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--card); border: 1px solid var(--green); color: var(--text);
+    border-radius: 999px; padding: 10px 22px; font-weight: 700; font-size: .9rem;
+    opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 70;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5); max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 560px) {
+    .hero h1 { font-size: 2rem; }
+    .btn { padding: 12px 18px; font-size: .95rem; }
+  }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<div class="wrap">
+  <header>
+    <div class="logo" id="logo">🐍 Py<span>Quest</span></div>
+    <div class="stats">
+      <div class="pill">⭐ <span id="stat-points">0</span> <small>pts</small></div>
+      <div class="pill">🔥 <span id="stat-streak">0</span></div>
+      <div class="pill">🏆 <span id="stat-done">0</span>/<span id="stat-total">33</span></div>
+      <button class="icon-btn" id="btn-mute" title="Sonido">🔊</button>
+    </div>
+  </header>
+
+  <!-- ============ HOME ============ -->
+  <section id="screen-home" class="screen active">
+    <div class="hero">
+      <div class="snake">🐍</div>
+      <h1>Py<span>Quest</span></h1>
+      <p>El juego para aprender <b>Python</b> resolviendo retos de código</p>
+    </div>
+    <div class="card center">
+      <p style="line-height:1.6">Supera <b><span id="home-levels">33</span> niveles</b> en <b><span id="home-worlds">8</span> mundos</b>: desde tu primer <code style="color:var(--py-yellow)">print()</code> hasta depurar código como un profesional. Gana puntos, mantén tu racha 🔥 y conviértete en un maestro Python.</p>
+      <div class="features">
+        <div class="feature"><b>💻</b>Escribe código real</div>
+        <div class="feature"><b>🧩</b>Puzzles y quizzes</div>
+        <div class="feature"><b>💡</b>Pistas y explicaciones</div>
+        <div class="feature"><b>⭐</b>Puntos y estrellas</div>
+      </div>
+      <div class="btn-row" style="justify-content:center; margin-top:18px">
+        <button class="btn btn-primary" id="btn-play">▶ Jugar</button>
+        <button class="btn btn-ghost" id="btn-map">🗺 Mapa</button>
+        <a class="btn btn-green" href="manual.html" style="text-decoration:none">📖 Manual de Python</a>
+        <a class="btn btn-green" href="taller.html" style="text-decoration:none">🔨 Taller: tu primera app</a>
+        <a class="btn btn-green" href="taller-bot.html" style="text-decoration:none">🤖 Taller: tu primer bot</a>
+        <a class="btn btn-green" href="taller-web.html" style="text-decoration:none">🌐 Taller: tu primera web</a>
+        <a class="btn btn-ghost" href="contacto.html" style="text-decoration:none">✉️ Contacto</a>
+        <button class="btn btn-ghost" id="btn-how">❓ Cómo jugar</button>
+      </div>
+    </div>
+    <div class="card" id="how-card" style="display:none">
+      <h3>❓ Cómo jugar</h3>
+      <p style="line-height:1.7; margin-top:8px">
+        💻 <b>Retos de código:</b> escribe el código en el editor y pulsa <b>Ejecutar ▶</b>.<br>
+        🔘 <b>Quiz:</b> elige la respuesta correcta.<br>
+        🧩 <b>Ordenar:</b> pulsa las líneas en el orden correcto.<br>
+        💡 <b>Pistas:</b> cuestan 25 puntos, ¡úsalas con sabiduría!<br>
+        🔥 <b>Racha:</b> acierta a la primera para ganar puntos extra.<br>
+        💾 <b>Autoguardado:</b> tu progreso se guarda solo. Con <b>Exportar/Importar</b> puedes llevarlo a otro navegador.<br>
+        👁 <b>¿Atascado?</b> Tras 3 fallos aparece el botón de solución (¡pero da pocos puntos!).<br>
+        🏅 <b>Logros:</b> desbloquea insignias jugando. Míralas en el inicio.<br>
+        💀 <b>Hardcore:</b> supera todos los niveles sin pistas ni soluciones. ¡Los niveles limpios marcan 💀 en el mapa!<br>
+        ⭐ Consigue hasta <b>3 estrellas</b> por nivel.
+      </p>
+    </div>
+    <div class="card" id="save-card">
+      <h3>💾 Progreso guardado automáticamente</h3>
+      <p id="save-info"></p>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="btn-export">📤 Exportar</button>
+        <button class="btn btn-ghost" id="btn-import">📥 Importar</button>
+        <button class="btn btn-danger" id="btn-reset">🗑 Reiniciar</button>
+      </div>
+    </div>
+    <div class="card" id="ach-card">
+      <h3>🏅 Logros <small id="ach-count" style="color:var(--muted)"></small></h3>
+      <div id="ach-grid" class="ach-grid"></div>
+    </div>
+  </section>
+
+  <!-- ============ MAP ============ -->
+  <section id="screen-map" class="screen">
+    <h2 style="margin-top:14px">🗺 Mapa de niveles</h2>
+    <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <p style="color:var(--muted); font-size:.9rem"><span id="progress-text">0%</span> completado</p>
+    <div id="worlds"></div>
+    <div class="btn-row"><button class="btn btn-ghost" id="btn-home">← Inicio</button></div>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="screen-game" class="screen">
+    <div class="level-head">
+      <button class="icon-btn" id="btn-back-map" title="Volver al mapa">←</button>
+      <h2 id="g-title"></h2>
+      <span class="tag" id="g-topic"></span>
+      <span class="tag diff" id="g-diff"></span>
+    </div>
+    <div class="story" id="g-story"></div>
+    <div class="card">
+      <div class="instructions" id="g-instructions"></div>
+      <div id="g-quiz-code-wrap" style="display:none"><pre class="quiz-code" id="g-quiz-code"></pre></div>
+      <div id="g-editor-wrap" class="editor-wrap" style="display:none">
+        <div class="editor-bar"><span class="dot" style="background:#ef4444"></span><span class="dot" style="background:#f59e0b"></span><span class="dot" style="background:#22c55e"></span>&nbsp; main.py</div>
+        <textarea class="code" id="g-editor" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+      </div>
+      <div id="g-options" class="options" style="display:none"></div>
+      <div id="g-order" style="display:none">
+        <p class="order-hint">👆 Pulsa las líneas en el orden correcto. Pulsa una línea colocada para quitarla.</p>
+        <div class="order-answer" id="g-order-answer"></div>
+        <div class="order-pool" id="g-order-pool"></div>
+      </div>
+      <div class="console" id="g-console"><span class="dim">Consola lista. ¡Pulsa Ejecutar cuando termines! 🚀</span></div>
+      <div class="hint-box" id="g-hint"></div>
+      <div class="btn-row">
+        <button class="btn btn-green" id="btn-run">▶ Ejecutar</button>
+        <button class="btn btn-ghost" id="btn-hint">💡 Pista (−25)</button>
+        <button class="btn btn-ghost" id="btn-solution" style="display:none">👁 Solución</button>
+        <button class="btn btn-ghost" id="btn-restart-level">↺ Reiniciar</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ MODAL ============ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="big-stars" id="m-stars"></div>
+    <h2 id="m-title">¡Nivel superado!</h2>
+    <div class="pts" id="m-pts"></div>
+    <div class="concept" id="m-concept"></div>
+    <div class="btn-row" style="justify-content:center">
+      <button class="btn btn-ghost" id="btn-modal-map">🗺 Mapa</button>
+      <button class="btn btn-ghost" id="btn-modal-replay">↺ Repetir</button>
+      <button class="btn btn-primary" id="btn-modal-next">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ UTIL MODAL (exportar / importar / confirmar) ============ -->
+<div class="modal-overlay" id="util-overlay">
+  <div class="modal">
+    <h2 id="u-title" style="text-align:left"></h2>
+    <div id="u-body"></div>
+    <div class="btn-row" id="u-buttons" style="justify-content:flex-end; margin-top:16px"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* ==================== STORAGE (seguro) ==================== */
+const store = {
+  mem: {},
+  get(k, fb) {
+    try { const v = localStorage.getItem(k); return v === null ? fb : JSON.parse(v); }
+    catch(e) { return (k in this.mem) ? this.mem[k] : fb; }
+  },
+  set(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); }
+    catch(e) { this.mem[k] = v; }
+  }
+};
+
+/* ==================== SONIDO ==================== */
+let muted = store.get("pyq_muted", false);
+let audioCtx = null;
+function beep(freq, dur, delay, type) {
+  if (muted) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type || "sine"; o.frequency.value = freq;
+    const t = audioCtx.currentTime + (delay || 0);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  } catch(e) {}
+}
+const sfx = {
+  click: () => beep(500, 0.08, 0, "square"),
+  good: () => { beep(523, .15, 0); beep(659, .15, .12); beep(784, .3, .24); },
+  bad: () => beep(160, .3, 0, "sawtooth"),
+  star: () => { beep(880, .12, 0); beep(1174, .2, .1); },
+  win: () => { [523,659,784,1046,784,1046].forEach((f,i)=>beep(f,.18,i*.14)); }
+};
+
+/* ==================== CONFETTI ==================== */
+const cvs = document.getElementById("confetti"), ctx = cvs.getContext("2d");
+let parts = [], confettiRunning = false;
+function sizeCanvas() { cvs.width = innerWidth; cvs.height = innerHeight; }
+addEventListener("resize", sizeCanvas); sizeCanvas();
+function confetti(n) {
+  const colors = ["#ffd43b","#4b8bbe","#22c55e","#ef4444","#a78bfa","#f97316"];
+  for (let i = 0; i < (n || 120); i++) {
+    parts.push({
+      x: Math.random() * cvs.width, y: -20 - Math.random() * cvs.height * 0.3,
+      vx: (Math.random() - .5) * 3, vy: 2 + Math.random() * 4,
+      s: 5 + Math.random() * 7, r: Math.random() * Math.PI,
+      vr: (Math.random() - .5) * .3, c: colors[Math.floor(Math.random() * colors.length)]
+    });
+  }
+  if (!confettiRunning) { confettiRunning = true; requestAnimationFrame(confettiLoop); }
+}
+function confettiLoop() {
+  ctx.clearRect(0, 0, cvs.width, cvs.height);
+  parts = parts.filter(p => p.y < cvs.height + 30);
+  for (const p of parts) {
+    p.x += p.vx; p.y += p.vy; p.r += p.vr;
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+    ctx.fillStyle = p.c; ctx.fillRect(-p.s/2, -p.s/2, p.s, p.s * .6);
+    ctx.restore();
+  }
+  if (parts.length) requestAnimationFrame(confettiLoop);
+  else { confettiRunning = false; ctx.clearRect(0,0,cvs.width,cvs.height); }
+}
+
+/* ==================== NIVELES ==================== */
+const norm = s => (s || "").replace(/\s+/g, "").replace(/'/g, '"').replace(/;/g, "");
+const low = s => norm(s).toLowerCase();
+
+const WORLDS = [
+  { name: "🌱 Mundo 1 — La Base", desc: "Variables, tipos y tus primeras líneas" },
+  { name: "🌲 Mundo 2 — El Bosque Lógico", desc: "Condicionales y bucles" },
+  { name: "💎 Mundo 3 — La Cueva de los Datos", desc: "Listas, diccionarios y colecciones" },
+  { name: "🏰 Mundo 4 — La Torre del Código", desc: "Funciones y el desafío final" },
+  { name: "🔥 Mundo 5 — La Forja", desc: "Slicing, sets, métodos y lógica combinada" },
+  { name: "🌌 Mundo 6 — El Vacío Cuántico", desc: "try/except, funciones avanzadas y el reto definitivo" },
+  { name: "🤖 Mundo 7 — La Ciudad de las Clases", desc: "Clases, objetos y métodos" },
+  { name: "📦 Mundo 8 — El Archivo Infinito", desc: "Archivos, módulos, herencia… ¡y el JEFE FINAL!" }
+];
+
+const LEVELS = [
+/* ---------- MUNDO 1 ---------- */
+{
+  world: 0, title: "¡Hola, Mundo!", topic: "print()", diff: "⭐",
+  story: "Un pequeño robot llamado <b>Pip</b> acaba de despertar. Para encender su voz necesita que escribas su primera línea de código.",
+  instructions: `Escribe un programa que muestre por pantalla el texto <code>Hola, mundo</code>.<br>📝 Usa la función <code>print()</code> con el texto entre comillas.`,
+  type: "code",
+  starter: "# Escribe tu código aquí\n",
+  output: "Hola, mundo",
+  check(code) {
+    const n = low(code);
+    if (!n.includes("print")) return { ok: false, msg: "❌ Necesitas usar la función print()." };
+    if (n.includes('print("hola,mundo")') || n.includes("print('hola,mundo')"))
+      return { ok: true };
+    if (!n.includes("hola,mundo")) return { ok: false, msg: "❌ El texto debe ser exactamente: Hola, mundo" };
+    return { ok: false, msg: "❌ Revisa los paréntesis y las comillas: print(\"Hola, mundo\")" };
+  },
+  hint: "La estructura es: print(\"texto\"). ¡No olvides los paréntesis!",
+  concept: "📚 <b>print()</b> es la función más famosa de Python: muestra texto por pantalla. Todo texto (string) va entre comillas: <b>print(\"Hola\")</b>."
+},
+{
+  world: 0, title: "Caja de variables", topic: "Variables", diff: "⭐",
+  story: "Pip necesita una mochila para guardar cosas. En programación, las <b>variables</b> son cajas con nombre donde guardas valores.",
+  instructions: `Crea una variable llamada <code>puntos</code> que guarde el valor <code>100</code>.`,
+  type: "code",
+  starter: "# Crea la variable 'puntos' con valor 100\n",
+  output: "✓ Variable 'puntos' creada con valor 100",
+  check(code) {
+    const n = norm(code);
+    if (n.includes("puntos==100")) return { ok: false, msg: "❌ ¡Cuidado! Para asignar se usa UN solo igual: puntos = 100" };
+    if (/puntos=100/.test(n)) return { ok: true };
+    if (!/puntos/i.test(code)) return { ok: false, msg: "❌ La variable debe llamarse exactamente: puntos" };
+    return { ok: false, msg: "❌ Asigna el valor 100 con el signo = :  puntos = 100" };
+  },
+  hint: "En Python se asigna así: nombre = valor. Ejemplo: puntos = 100",
+  concept: "📚 Una <b>variable</b> guarda un valor para usarlo después. Se crea con <b>nombre = valor</b>. ¡No necesitas declarar el tipo, Python lo adivina!"
+},
+{
+  world: 0, title: "¿Qué tipo eres?", topic: "Tipos de datos", diff: "⭐",
+  story: "Pip encontró tres cofres misteriosos. Cada valor en Python tiene un <b>tipo</b>: ¿sabrías identificarlos?",
+  instructions: `¿Qué muestra este programa?<br>Elige la respuesta correcta:`,
+  type: "quiz",
+  quizCode: 'print(type(3.14))',
+  options: [`<class 'int'>`, `<class 'float'>`, `<class 'str'>`, `<class 'number'>`],
+  correct: 1,
+  hint: "int = entero, float = decimal, str = texto. ¿3.14 tiene decimales?",
+  concept: "📚 <b>type()</b> revela el tipo de un valor. <b>int</b> = enteros (5), <b>float</b> = decimales (3.14), <b>str</b> = texto (\"hola\")."
+},
+{
+  world: 0, title: "Mensajes mágicos", topic: "f-strings", diff: "⭐⭐",
+  story: "Pip quiere saludar a sus amigos por su nombre. Los <b>f-strings</b> permiten mezclar texto y variables como por arte de magia.",
+  instructions: `Completa el código para que <code>mensaje</code> valga <code>Hola, Ada</code> usando un <b>f-string</b> con la variable <code>nombre</code>.`,
+  type: "code",
+  starter: 'nombre = "Ada"\nmensaje = ',
+  output: "Hola, Ada",
+  check(code) {
+    const n = low(code);
+    if (!n.includes("mensaje=")) return { ok: false, msg: "❌ Debes asignar el valor a la variable mensaje." };
+    if (n.includes('mensaje=f"hola,{nombre}"')) return { ok: true };
+    if (!/[fF]"/.test(norm(code)) && !/[fF]/.test(code)) return { ok: false, msg: "❌ Usa un f-string: pon una f antes de las comillas → f\"...\"" };
+    if (!n.includes("{nombre}")) return { ok: false, msg: "❌ Dentro del f-string, pon la variable entre llaves: {nombre}" };
+    return { ok: false, msg: "❌ Casi… debe quedar: mensaje = f\"Hola, {nombre}\"" };
+  },
+  hint: "Un f-string empieza con f y mete variables entre {llaves}: f\"Hola, {nombre}\"",
+  concept: "📚 Los <b>f-strings</b> (f\"...\") insertan variables dentro de un texto usando <b>{llaves}</b>. Ejemplo: f\"Hola, {nombre}\". ¡Limpio y potente!"
+},
+/* ---------- MUNDO 2 ---------- */
+{
+  world: 1, title: "El guardián if", topic: "Condicionales", diff: "⭐⭐",
+  story: "Un guardián bloquea el puente del bosque. Solo deja pasar a quien escriba correctamente la condición de entrada.",
+  instructions: `Completa la condición: si <code>edad</code> es <b>mayor o igual a 18</b>, se muestra "Puedes entrar".<br>📝 Escribe la condición dentro del <code>if</code> (no olvides los <code>:</code>).`,
+  type: "code",
+  starter: 'edad = 18\nif :\n    print("Puedes entrar")',
+  output: "Puedes entrar",
+  check(code) {
+    const n = norm(code);
+    if (!/if/i.test(code)) return { ok: false, msg: "❌ Necesitas la palabra clave if." };
+    if (n.includes("ifedad>=18:") || n.includes("if18<=edad:")) return { ok: true };
+    if (n.includes("ifedad>18:") || n.includes("ifedad=>18:")) return { ok: false, msg: "❌ ¡Casi! Debe ser MAYOR O IGUAL: >= (el 18 también entra)." };
+    if (!n.includes("ifedad") && !n.includes("if18")) return { ok: false, msg: "❌ La condición debe comparar la variable edad con 18." };
+    if (!/:$/.test(code.trim().split("\n")[1] || "") && !n.includes(":")) return { ok: false, msg: "❌ No olvides los dos puntos : al final del if." };
+    return { ok: false, msg: "❌ Debe quedar:  if edad >= 18:" };
+  },
+  hint: "Mayor o igual se escribe >=. Y el if siempre termina con dos puntos :",
+  concept: "📚 <b>if</b> ejecuta código solo si la condición es verdadera. Operadores: <b>==</b> igual, <b>!=</b> distinto, <b>&gt;</b>, <b>&lt;</b>, <b>&gt;=</b>, <b>&lt;=</b>. ¡Y siempre con <b>:</b> e indentación!"
+},
+{
+  world: 1, title: "El examen de notas", topic: "elif / else", diff: "⭐⭐",
+  story: "Pip se examina de programación. Su nota decide la letra que recibe. Sigue el camino del código con la mirada…",
+  instructions: `¿Qué imprime este programa si <code>puntos = 75</code>?`,
+  type: "quiz",
+  quizCode: 'puntos = 75\nif puntos >= 90:\n    print("A")\nelif puntos >= 60:\n    print("B")\nelse:\n    print("C")',
+  options: [`A`, `B`, `C`, `Da error`],
+  correct: 1,
+  hint: "75 no llega a 90… pero ¿llega a 60? Python prueba las condiciones en orden y se queda con la primera que cumpla.",
+  concept: "📚 <b>elif</b> = \"si no, prueba esto\". Python evalúa las ramas <b>en orden</b> y ejecuta solo la <b>primera</b> que sea verdadera. 75 ≥ 60 pero no ≥ 90 → imprime B."
+},
+{
+  world: 1, title: "El bucle infinito… o no", topic: "for + range", diff: "⭐⭐",
+  story: "Pip encontró una escalera mágica que se repite sola. Los bucles <b>for</b> repiten acciones sin que tengas que escribirlas mil veces.",
+  instructions: `¿Qué imprime este programa? (Cada número en una línea)`,
+  type: "quiz",
+  quizCode: 'for i in range(3):\n    print(i)',
+  options: ["0\n1\n2", "1\n2\n3", "0\n1\n2\n3", "3\n2\n1"],
+  correct: 0,
+  hint: "range(3) genera números desde 0 hasta… ¡pero sin incluir el 3! En Python casi todo empieza en 0.",
+  concept: "📚 <b>range(3)</b> genera 0, 1, 2 (empieza en <b>0</b> y <b>excluye</b> el final). El <b>for</b> repite el bloque una vez por cada valor."
+},
+{
+  world: 1, title: "Cuenta atrás", topic: "while", diff: "⭐⭐⭐",
+  story: "¡El cohete de Pip despega en 3 segundos! Programa la cuenta atrás: 3, 2, 1…",
+  instructions: `Escribe un bucle <code>while</code> que imprima los números <code>3</code>, <code>2</code> y <code>1</code> (cada uno en una línea).<br>📝 Necesitas: una variable que empiece en 3, un <code>while</code>, un <code>print()</code> y restar 1 en cada vuelta.`,
+  type: "code",
+  starter: "# Cuenta atrás desde 3 hasta 1\n",
+  output: "3\n2\n1",
+  check(code) {
+    const hasWhile = /while/i.test(code);
+    const hasPrint = /print\s*\(/.test(code);
+    const hasDec = /-\s*=\s*1/.test(code) || /\w+\s*=\s*\w+\s*-\s*1/.test(code);
+    const hasStart = /=\s*3/.test(code);
+    if (!hasWhile) return { ok: false, msg: "❌ Necesitas un bucle while." };
+    if (!hasStart) return { ok: false, msg: "❌ Crea una variable que empiece valiendo 3." };
+    if (!/while\s+\w+\s*[>!]/i.test(code)) return { ok: false, msg: "❌ La condición del while debe comparar la variable (ej: while n > 0:)." };
+    if (!hasPrint) return { ok: false, msg: "❌ Dentro del bucle, imprime la variable con print()." };
+    if (!hasDec) return { ok: false, msg: "❌ ¡Peligro de bucle infinito! Resta 1 en cada vuelta (ej: n -= 1)." };
+    return { ok: true };
+  },
+  hint: "Estructura:\nn = 3\nwhile n > 0:\n    print(n)\n    n -= 1",
+  concept: "📚 <b>while</b> repite MIENTRAS la condición sea verdadera. ⚠️ ¡Ojo! Si la condición nunca se vuelve falsa, el bucle no termina jamás. Por eso restamos 1 cada vuelta."
+},
+/* ---------- MUNDO 3 ---------- */
+{
+  world: 2, title: "La lista del tesoro", topic: "Listas e índices", diff: "⭐⭐",
+  story: "En la cueva hay un cofre con frutas mágicas guardadas en una <b>lista</b>. Pero… ¡las listas empiezan a contar desde 0!",
+  instructions: `¿Qué imprime este programa?`,
+  type: "quiz",
+  quizCode: 'frutas = ["manzana", "banana", "cereza"]\nprint(frutas[1])',
+  options: [`manzana`, `banana`, `cereza`, `Da error`],
+  correct: 1,
+  hint: "Los índices empiezan en 0: posición 0 = manzana, posición 1 = …",
+  concept: "📚 Las <b>listas</b> guardan varios valores entre corchetes. Se accede por <b>índice</b>, que empieza en <b>0</b>: frutas[0] es \"manzana\", frutas[1] es \"banana\"."
+},
+{
+  world: 2, title: "Añade al cofre", topic: "Métodos de lista", diff: "⭐⭐",
+  story: "Pip quiere guardar una naranja en el cofre. Las listas tienen superpoderes llamados <b>métodos</b>, como <b>append()</b>.",
+  instructions: `Añade <code>"naranja"</code> a la lista <code>frutas</code> usando el método <code>.append()</code>.`,
+  type: "code",
+  starter: 'frutas = ["manzana", "banana"]\n# Añade "naranja" a la lista\n',
+  output: '["manzana", "banana", "naranja"]',
+  check(code) {
+    const n = low(code);
+    if (!n.includes(".append(")) return { ok: false, msg: "❌ Usa el método .append() →  frutas.append(...)" };
+    if (!n.includes("frutas.append(")) return { ok: false, msg: "❌ El append debe aplicarse a frutas: frutas.append(\"naranja\")" };
+    if (!n.includes("naranja")) return { ok: false, msg: "❌ Debes añadir exactamente el texto \"naranja\"." };
+    return { ok: true };
+  },
+  hint: "Los métodos se llaman con un punto:  frutas.append(\"naranja\")",
+  concept: "📚 <b>.append(x)</b> añade un elemento al FINAL de la lista. Otros métodos útiles: <b>.remove(x)</b>, <b>.sort()</b>, y <b>len(lista)</b> para saber cuántos hay."
+},
+{
+  world: 2, title: "El diccionario secreto", topic: "Diccionarios", diff: "⭐⭐⭐",
+  story: "Pip guarda su ficha de jugador en un <b>diccionario</b>: pares de clave → valor. Necesita leer su nivel actual.",
+  instructions: `Muestra por pantalla el <b>nivel</b> del jugador leyendo el diccionario <code>jugador</code>.`,
+  type: "code",
+  starter: 'jugador = {"nombre": "Ada", "nivel": 5}\n# Muestra el nivel del jugador\n',
+  output: "5",
+  check(code) {
+    const n = norm(code);
+    if (!/print\s*\(/.test(code)) return { ok: false, msg: "❌ Debes mostrar el resultado con print()." };
+    if (!n.includes('jugador["nivel"]')) return { ok: false, msg: "❌ Lee el valor con su clave: jugador[\"nivel\"]" };
+    return { ok: true };
+  },
+  hint: "Se accede con corchetes y la clave entre comillas: jugador[\"nivel\"]",
+  concept: "📚 Un <b>diccionario</b> guarda pares <b>clave: valor</b> entre llaves {}. Se lee con <b>dic[\"clave\"]</b>. Ideal para fichas, configuraciones y datos con nombre."
+},
+{
+  world: 2, title: "Ordena el hechizo", topic: "Lógica + listas", diff: "⭐⭐⭐",
+  story: "¡Un pergamino se ha roto en 5 tiras! Ordénalas para reconstruir el hechizo que duplica números.",
+  instructions: `Ordena las líneas para que el programa cree la lista <code>[2, 4, 6]</code> (el doble de cada número) y la muestre.`,
+  type: "order",
+  lines: [
+    "numeros = [1, 2, 3]",
+    "dobles = []",
+    "for n in numeros:",
+    "    dobles.append(n * 2)",
+    "print(dobles)"
+  ],
+  shuffled: [2, 0, 4, 1, 3],
+  output: "[2, 4, 6]",
+  hint: "Pista: primero se crean las listas, luego el bucle, y el print va al final (¡sin indentar!).",
+  concept: "📚 El <b>orden importa</b>: 1️⃣ crear datos, 2️⃣ procesarlos en el bucle, 3️⃣ mostrar el resultado. Y recuerda: el <b>print va fuera</b> del bucle (sin indentación) para mostrarse una sola vez."
+},
+/* ---------- MUNDO 4 ---------- */
+{
+  world: 3, title: "La máquina de saludar", topic: "Funciones", diff: "⭐⭐⭐",
+  story: "En lo alto de la torre hay una máquina que saluda a quien sea. Las <b>funciones</b> son máquinas: reciben datos, trabajan y devuelven un resultado.",
+  instructions: `Completa la función <code>saludar(nombre)</code> para que <b>devuelva</b> el texto <code>Hola, Ada</code> (usando el parámetro <code>nombre</code>).`,
+  type: "code",
+  starter: 'def saludar(nombre):\n    # Devuelve el saludo usando nombre\n',
+  output: 'saludar("Ada") → Hola, Ada',
+  check(code) {
+    const n = low(code);
+    if (!/def\s+saludar\s*\(/i.test(code)) return { ok: false, msg: "❌ Debe existir: def saludar(nombre):" };
+    if (!n.includes("return")) return { ok: false, msg: "❌ La función debe DEVOLVER el valor con return (no solo imprimirlo)." };
+    const okF = n.includes('returnf"hola,{nombre}"');
+    const okPlus = n.includes('return"hola,"+nombre');
+    if (okF || okPlus) return { ok: true };
+    if (!n.includes("{nombre}") && !n.includes("+nombre")) return { ok: false, msg: "❌ Usa el parámetro nombre dentro del saludo." };
+    return { ok: false, msg: "❌ Casi… prueba: return f\"Hola, {nombre}\"" };
+  },
+  hint: "Dentro de la función escribe: return f\"Hola, {nombre}\"",
+  concept: "📚 <b>def</b> crea una función. <b>return</b> devuelve un resultado (¡distinto de print!). Así puedes reutilizarla: saludar(\"Ada\"), saludar(\"Pip\")…"
+},
+{
+  world: 3, title: "El doble misterio", topic: "return", diff: "⭐⭐⭐",
+  story: "La función <b>misterio</b> duplica todo lo que toca. Pip la usa dos veces… ¿cuánto sale en total?",
+  instructions: `¿Qué número imprime este programa?`,
+  type: "quiz",
+  quizCode: 'def misterio(x):\n    return x * 2\n\nresultado = misterio(5) + misterio(3)\nprint(resultado)',
+  options: [`8`, `13`, `16`, `10`],
+  correct: 2,
+  hint: "misterio(5) devuelve 10 y misterio(3) devuelve 6. ¿Cuánto es 10 + 6?",
+  concept: "📚 <b>return</b> entrega un valor que puedes usar en operaciones. misterio(5)→10 y misterio(3)→6, así que 10 + 6 = <b>16</b>. ¡Las funciones devuelven, no solo imprimen!"
+},
+{
+  world: 3, title: "Magia en una línea", topic: "Comprensión de listas", diff: "⭐⭐⭐⭐",
+  story: "Los grandes magos de Python crean listas enteras en UNA sola línea con las <b>comprensiones</b>. Es hora de aprender el truco.",
+  instructions: `Crea en UNA línea la lista <code>[0, 1, 4, 9, 16]</code> (los cuadrados de 0 a 4) usando una <b>comprensión de lista</b> con <code>range(5)</code>.<br>📝 Forma: <code>[ ... for x in range(5)]</code>`,
+  type: "code",
+  starter: "# Crea la lista de cuadrados: [0, 1, 4, 9, 16]\ncuadrados = ",
+  output: "[0, 1, 4, 9, 16]",
+  check(code) {
+    const n = norm(code);
+    if (!n.includes("cuadrados=")) return { ok: false, msg: "❌ Asigna el resultado a la variable cuadrados." };
+    if (!/\[/.test(code) || !/\]/.test(code)) return { ok: false, msg: "❌ Una comprensión va entre corchetes [ ]." };
+    if (!/for\s+\w+\s+in/i.test(code)) return { ok: false, msg: "❌ Falta la parte: for x in ..." };
+    if (!/range\s*\(\s*(0\s*,\s*)?5\s*\)/.test(code)) return { ok: false, msg: "❌ Debes usar range(5) para generar 0, 1, 2, 3, 4." };
+    if (!(code.includes("**2") || /x\s*\*\s*x/.test(code))) return { ok: false, msg: "❌ Cada elemento debe ser el cuadrado: x**2 (o x*x)." };
+    return { ok: true };
+  },
+  hint: "La fórmula es: [x**2 for x in range(5)]",
+  concept: "📚 Una <b>comprensión</b> crea una lista en una línea: <b>[expresión for x in iterable]</b>. [x**2 for x in range(5)] genera los cuadrados de 0 a 4. ¡Elegante y pitónico! 🐍"
+},
+{
+  world: 3, title: "¡Depura el código!", topic: "Debugging", diff: "⭐⭐⭐⭐",
+  story: "¡Un BUG ha corrompido el programa de los números pares! Tiene <b>3 errores</b>. Arréglalos y salva la Torre del Código. 🐛⚔️",
+  instructions: `Corrige los <b>3 errores</b> para que imprima los números pares menores que 10 (0, 2, 4, 6, 8):<br>
+  1️⃣ Falta algo al final de la línea del <code>for</code><br>
+  2️⃣ La comparación usa <code>=</code> en vez del operador correcto<br>
+  3️⃣ El <code>print</code> debe estar DENTRO del <code>if</code> (indentado)`,
+  type: "code",
+  starter: '# ¡Hay 3 errores! Encuéntralos y corrígelos\nfor i in range(10)\n    if i % 2 = 0\nprint(i)',
+  output: "0\n2\n4\n6\n8",
+  check(code) {
+    const lines = code.split("\n");
+    if (!/for\s+i\s+in\s+range\s*\(\s*10\s*\)\s*:/.test(code))
+      return { ok: false, msg: "❌ Error 1 sin corregir: al for le faltan los dos puntos → range(10):" };
+    if (!/if\s+i\s*%\s*2\s*==\s*0\s*/.test(code))
+      return { ok: false, msg: "❌ Error 2 sin corregir: para comparar se usa == (doble igual), no =." };
+    const printLine = lines.find(l => /print\s*\(\s*i\s*\)/.test(l));
+    if (!printLine) return { ok: false, msg: "❌ Falta el print(i)." };
+    if (!/^\s+print/.test(printLine)) return { ok: false, msg: "❌ Error 3 sin corregir: el print(i) debe estar indentado DENTRO del if (con espacios delante)." };
+    return { ok: true };
+  },
+  hint: "Los 3 arreglos:\n• for ... range(10):  ← añade :\n• if i % 2 == 0:  ← doble == y :\n•     print(i)  ← indenta con 4 espacios",
+  concept: "📚 ¡Errores clásicos! ① El <b>for/if</b> siempre terminan con <b>:</b>. ② Comparar es <b>==</b>, asignar es <b>=</b>. ③ La <b>indentación</b> define qué código está dentro del bloque. ¡Ya depuras como un pro! 🏆"
+},
+/* ---------- MUNDO 5 ---------- */
+{
+  world: 4, title: "Grito de guerra", topic: "Métodos de string", diff: "⭐⭐",
+  story: "Pip entra en <b>La Forja</b>, donde el código se templa como el acero. Primera prueba: ¡hacer GRITAR a un texto!",
+  instructions: `Muestra el texto en <b>MAYÚSCULAS</b> usando el método <code>.upper()</code> y <code>print()</code>.`,
+  type: "code",
+  starter: 'texto = "python mola"\n# Muestra el texto en MAYÚSCULAS\n',
+  output: "PYTHON MOLA",
+  check(code) {
+    if (!/print\s*\(/.test(code)) return { ok: false, msg: "❌ Debes mostrar el resultado con print()." };
+    if (!/\.upper\s*\(/.test(code)) return { ok: false, msg: "❌ Usa el método .upper() →  texto.upper()" };
+    if (!/texto\s*\.\s*upper\s*\(/.test(code)) return { ok: false, msg: "❌ Aplica .upper() a la variable texto: texto.upper()" };
+    return { ok: true };
+  },
+  hint: "Los métodos van con punto y paréntesis: print(texto.upper())",
+  concept: "📚 Los strings tienen <b>métodos</b>: <b>.upper()</b> (mayúsculas), <b>.lower()</b> (minúsculas), <b>.strip()</b> (quita espacios)… Se llaman con punto: <b>texto.upper()</b>."
+},
+{
+  world: 4, title: "El corte perfecto", topic: "Slicing", diff: "⭐⭐⭐",
+  story: "El herrero necesita cortar la lista justo por donde indica el plano. Un corte mal hecho… ¡y la espada se rompe!",
+  instructions: `¿Qué imprime este programa?<br>📝 Recuerda: en el slicing <code>[inicio:fin]</code>, el <b>fin se excluye</b>.`,
+  type: "quiz",
+  quizCode: 'nums = [10, 20, 30, 40, 50]\nprint(nums[1:4])',
+  options: [`[10, 20, 30]`, `[20, 30, 40]`, `[20, 30, 40, 50]`, `[10, 20, 30, 40]`],
+  correct: 1,
+  hint: "Índices: 0→10, 1→20, 2→30, 3→40, 4→50. El corte [1:4] coge desde la posición 1 hasta ANTES de la 4.",
+  concept: "📚 El <b>slicing [a:b]</b> corta desde <b>a</b> hasta <b>b sin incluirlo</b>. nums[1:4] → posiciones 1, 2, 3 → <b>[20, 30, 40]</b>."
+},
+{
+  world: 4, title: "Sin repetidos", topic: "Sets", diff: "⭐⭐⭐",
+  story: "La Forja está llena de piezas duplicadas. Pip usará un <b>set</b>: una colección mágica donde los repetidos desaparecen.",
+  instructions: `¿Qué número imprime este programa?`,
+  type: "quiz",
+  quizCode: 'numeros = [1, 2, 2, 3, 3, 3]\nunicos = set(numeros)\nprint(len(unicos))',
+  options: [`6`, `3`, `2`, `Da error`],
+  correct: 1,
+  hint: "set() elimina duplicados: queda {1, 2, 3}. ¿Cuántos elementos hay? ¡len() los cuenta!",
+  concept: "📚 <b>set()</b> crea un conjunto sin repetidos: [1,2,2,3,3,3] → {1, 2, 3}. Y <b>len()</b> cuenta sus 3 elementos. ¡Combo perfecto para contar valores únicos!"
+},
+{
+  world: 4, title: "El contador de vocales", topic: "Bucles + if", diff: "⭐⭐⭐⭐",
+  story: "El pergamino final de la Forja se ha roto en 6 tiras. Reconstruye el hechizo que cuenta vocales para abrir la puerta al Vacío…",
+  instructions: `Ordena las líneas para que el programa cuente las vocales de <code>"hola mundo"</code> (debería dar <b>4</b>).`,
+  type: "order",
+  lines: [
+    'texto = "hola mundo"',
+    "contador = 0",
+    "for letra in texto:",
+    '    if letra in "aeiou":',
+    "        contador += 1",
+    "print(contador)"
+  ],
+  shuffled: [3, 0, 5, 2, 1, 4],
+  output: "4",
+  hint: "Orden: crear las variables → bucle for → if dentro del bucle → sumar dentro del if → print al final SIN indentar.",
+  concept: "📚 ¡Patrón <b>contador</b>! Variable en 0 → bucle que suma 1 cuando se cumple una condición → resultado al final. Sirve para contar cualquier cosa: vocales, aprobados, clics…"
+},
+/* ---------- MUNDO 6 ---------- */
+{
+  world: 5, title: "Red de seguridad", topic: "try / except", diff: "⭐⭐⭐",
+  story: "En el Vacío Cuántico, los errores pueden romper la realidad. Los maestros usan <b>try/except</b>: una red que atrapa fallos sin que el programa muera.",
+  instructions: `¿Qué imprime este programa?`,
+  type: "quiz",
+  quizCode: 'try:\n    numero = int("hola")\n    print("Todo bien")\nexcept ValueError:\n    print("¡Error atrapado!")',
+  options: [`Todo bien`, `¡Error atrapado!`, `Se cuelga con error`, `hola`],
+  correct: 1,
+  hint: 'int("hola") falla con ValueError… pero hay un except que lo atrapa. El print del try nunca llega a ejecutarse.',
+  concept: "📚 <b>try</b> intenta código peligroso; si falla, salta al <b>except</b> y el programa <b>sigue vivo</b>. Sin esta red, int(\"hola\") habría colgado todo el programa."
+},
+{
+  world: 5, title: "Potencia flexible", topic: "Parámetros por defecto", diff: "⭐⭐⭐⭐",
+  story: "Pip ha construido un rayo de energía con dos diales: base y exponente. Si no tocas el segundo dial, vale 2 automáticamente.",
+  instructions: `Crea la función <code>potencia(base, exp=2)</code> que <b>devuelva</b> <code>base</code> elevado a <code>exp</code> (usa <code>**</code>).`,
+  type: "code",
+  starter: '# Crea la función potencia(base, exp=2)\n',
+  output: "potencia(3) → 9 · potencia(2, 3) → 8",
+  check(code) {
+    const n = norm(code);
+    if (!/def\s+potencia\s*\(/i.test(code)) return { ok: false, msg: "❌ Crea la función: def potencia(base, exp=2):" };
+    if (!n.includes("exp=2")) return { ok: false, msg: "❌ El parámetro exp debe valer 2 por defecto: def potencia(base, exp=2):" };
+    if (!/return/i.test(code)) return { ok: false, msg: "❌ La función debe DEVOLVER el resultado con return." };
+    if (!code.includes("**")) return { ok: false, msg: "❌ Usa el operador potencia: base ** exp" };
+    if (!/base/i.test(code) || !/exp/i.test(code)) return { ok: false, msg: "❌ Usa los parámetros base y exp en el cálculo." };
+    return { ok: true };
+  },
+  hint: "def potencia(base, exp=2):\n    return base ** exp",
+  concept: "📚 Los parámetros pueden tener <b>valor por defecto</b> (exp=2). Si llamas sin ese argumento, usa el 2: potencia(3) → 9. ¡Funciones flexibles!"
+},
+{
+  world: 5, title: "Invitados VIP", topic: "Diccionarios .get", diff: "⭐⭐⭐",
+  story: "En la fiesta del Vacío hay una lista de invitados. Si alguien no está en la lista, el portero le da 0 puntos en vez de montar un escándalo (KeyError).",
+  instructions: `¿Qué imprime este programa?`,
+  type: "quiz",
+  quizCode: 'edades = {"ana": 20, "pepe": 25}\ntotal = edades.get("luis", 0) + edades["ana"]\nprint(total)',
+  options: [`45`, `20`, `25`, `Da error (KeyError)`],
+  correct: 1,
+  hint: '.get("luis", 0) → luis no existe, devuelve 0 sin error. edades["ana"] → 20. ¿0 + 20?',
+  concept: "📚 <b>.get(clave, defecto)</b> evita el temido <b>KeyError</b> devolviendo un valor seguro. Aquí: 0 + 20 = <b>20</b>."
+},
+{
+  world: 5, title: "⚔️ El Guardián del Vacío", topic: "Todo junto", diff: "⭐⭐⭐⭐⭐",
+  story: "Un <b>GUARDIÁN</b> colosal bloquea la salida del Vacío. Solo caerá ante quien combine funciones, bucles, condicionales y return. ¡Demuestra tu poder! ⚔️",
+  instructions: `Escribe la función <code>suma_pares(numeros)</code> que reciba una lista y <b>devuelva</b> la suma de sus números pares.<br>
+  📝 Necesitas: <code>def</code> · un acumulador que empiece en <code>0</code> · un <code>for</code> · un <code>if</code> con <code>% 2 == 0</code> · <code>return</code>`,
+  type: "code",
+  starter: '# Escribe la función suma_pares(numeros)\n',
+  output: "suma_pares([1, 2, 3, 4, 5, 6]) → 12",
+  check(code) {
+    if (!/def\s+suma_pares\s*\(/i.test(code)) return { ok: false, msg: "❌ Crea la función: def suma_pares(numeros):" };
+    if (!/=\s*0/.test(code)) return { ok: false, msg: "❌ Crea un acumulador que empiece en 0 (ej: total = 0)." };
+    if (!/for\s+\w+\s+in/i.test(code)) return { ok: false, msg: "❌ Recorre la lista con un bucle for." };
+    if (!/%\s*2\s*==\s*0/.test(code)) return { ok: false, msg: "❌ Detecta los pares con: if n % 2 == 0:" };
+    if (!/\+=/.test(code) && !/=\s*\w+\s*\+/.test(code)) return { ok: false, msg: "❌ Suma cada par al acumulador (ej: total += n)." };
+    if (!/return/i.test(code)) return { ok: false, msg: "❌ Devuelve el resultado con return." };
+    return { ok: true };
+  },
+  hint: "def suma_pares(numeros):\n    total = 0\n    for n in numeros:\n        if n % 2 == 0:\n            total += n\n    return total",
+  concept: "📚 ¡Patrón <b>acumulador + filtro</b>! <b>def</b> crea la función, <b>total</b> acumula, <b>for</b> recorre, <b>if</b> filtra los pares (n % 2 == 0) y <b>return</b> entrega el resultado. ¡Casi eres un maestro! Solo quedan la Ciudad de las Clases y el Archivo Infinito… 🏆"
+},
+/* ---------- MUNDO 7 ---------- */
+{
+  world: 6, title: "Tu primer objeto", topic: "Clases y objetos", diff: "⭐⭐",
+  story: "Pip llega a la <b>Ciudad de las Clases</b>, donde todo se construye con planos llamados <b>clases</b>. Cada objeto creado desde un plano cobra vida propia.",
+  instructions: `¿Qué imprime este programa?`,
+  type: "quiz",
+  quizCode: 'class Perro:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\nmi_perro = Perro("Toby")\nprint(mi_perro.nombre)',
+  options: [`Toby`, `Perro`, `self`, `Da error`],
+  correct: 0,
+  hint: 'Perro("Toby") crea un objeto y guarda "Toby" en self.nombre. Luego leemos mi_perro.nombre…',
+  concept: "📚 Una <b>clase</b> es un plano; un <b>objeto</b> es lo que construyes con él. <b>__init__</b> es el constructor: se ejecuta al crear el objeto, y <b>self</b> representa al propio objeto."
+},
+{
+  world: 6, title: "El constructor", topic: "__init__ y self", diff: "⭐⭐⭐",
+  story: "El arquitecto de la ciudad te reta: completa el constructor para que cada gato recuerde su nombre.",
+  instructions: `Completa el constructor: guarda el parámetro <code>nombre</code> en <code>self.nombre</code>.`,
+  type: "code",
+  starter: 'class Gato:\n    def __init__(self, nombre):\n        # Guarda nombre en self.nombre\n\ng = Gato("Luna")\nprint(g.nombre)',
+  output: "Luna",
+  check(code) {
+    if (!/self\s*\.\s*nombre\s*=\s*nombre/i.test(code)) return { ok: false, msg: "❌ Escribe dentro del __init__: self.nombre = nombre" };
+    return { ok: true };
+  },
+  hint: "Dentro del __init__ escribe: self.nombre = nombre",
+  concept: "📚 El <b>constructor __init__</b> recibe los datos iniciales y los guarda en <b>self</b> (el propio objeto). Así cada objeto tiene sus valores: g.nombre → \"Luna\"."
+},
+{
+  world: 6, title: "Dale vida con métodos", topic: "Métodos", diff: "⭐⭐⭐⭐",
+  story: "Un coche sin motor no sirve. Añade un <b>método</b> (una función dentro de la clase) para que el coche arranque.",
+  instructions: `Añade el método <code>arrancar(self)</code> que <b>devuelva</b> el texto <code>Coche en marcha</code>.`,
+  type: "code",
+  starter: 'class Coche:\n    def __init__(self, marca):\n        self.marca = marca\n    # Añade aquí el método arrancar(self)\n\nmi_coche = Coche("Tesla")\nprint(mi_coche.arrancar())',
+  output: "Coche en marcha",
+  check(code) {
+    if (!/def\s+arrancar\s*\(\s*self\s*\)/i.test(code)) return { ok: false, msg: "❌ Crea el método: def arrancar(self):" };
+    if (!/return/i.test(code)) return { ok: false, msg: "❌ El método debe DEVOLVER el texto con return." };
+    if (!low(code).includes("cocheenmarcha")) return { ok: false, msg: "❌ Debe devolver exactamente: Coche en marcha" };
+    return { ok: true };
+  },
+  hint: '    def arrancar(self):\n        return "Coche en marcha"',
+  concept: "📚 Un <b>método</b> es una función dentro de una clase: define lo que un objeto sabe hacer. Siempre recibe <b>self</b> primero y se llama con punto: <b>mi_coche.arrancar()</b>."
+},
+{
+  world: 6, title: "Cada objeto, su vida", topic: "Atributos", diff: "⭐⭐⭐⭐",
+  story: "Dos robots salen de la misma fábrica con 100 de energía. A uno le gastan la mitad… ¿y al otro? ¡Nada! Cada objeto tiene SUS propios datos.",
+  instructions: `¿Qué imprime este programa? (Los dos números en una línea)`,
+  type: "quiz",
+  quizCode: 'class Robot:\n    energia = 100\n\nr1 = Robot()\nr2 = Robot()\nr1.energia = 50\nprint(r1.energia, r2.energia)',
+  options: [`50 100`, `100 100`, `50 50`, `Da error`],
+  correct: 0,
+  hint: "r1.energia = 50 solo cambia el dato de r1. El objeto r2 sigue intacto con su 100.",
+  concept: "📚 Cada objeto guarda <b>sus propios atributos</b>: cambiar r1.energia no afecta a r2. Por eso la POO es genial para videojuegos: jugadores, enemigos… ¡cada uno con su vida!"
+},
+/* ---------- MUNDO 8 ---------- */
+{
+  world: 7, title: "Escribir en piedra", topic: "Archivos", diff: "⭐⭐",
+  story: "Pip entra en el <b>Archivo Infinito</b>, donde todo lo que se escribe en piedra perdura para siempre. Primera prueba: entender los modos de archivo.",
+  instructions: `¿Qué hace este programa?`,
+  type: "quiz",
+  quizCode: 'with open("datos.txt", "w") as f:\n    f.write("Hola")',
+  options: [`Lee el archivo datos.txt`, `Escribe "Hola" (borrando lo anterior)`, `Añade "Hola" al final`, `Da error`],
+  correct: 1,
+  hint: 'El modo "w" (write) escribe… ¡pero vacía el archivo primero! Para añadir al final se usa "a".',
+  concept: "📚 <b>open()</b> abre archivos: <b>\"r\"</b> lee, <b>\"w\"</b> escribe (borrando lo anterior) y <b>\"a\"</b> añade al final. El <b>with</b> lo cierra solo. ¡Lo usaste en el taller de la app! 🔨"
+},
+{
+  world: 7, title: "Poderes prestados", topic: "Módulos", diff: "⭐⭐",
+  story: "En el Archivo hay tomos con poderes de otros programadores: los <b>módulos</b>. Con <code>import</code> los tomas prestados.",
+  instructions: `¿Qué imprime este programa?`,
+  type: "quiz",
+  quizCode: 'import random\nprint(random.randint(1, 10))',
+  options: [`Un número del 1 al 10`, `Siempre 10`, `10 números distintos`, `Da error: random no existe`],
+  correct: 0,
+  hint: "random es un módulo que viene con Python. randint(1, 10) elige un entero al azar… ¡incluyendo el 10!",
+  concept: "📚 <b>import</b> carga un módulo (código de otro). <b>random.randint(1, 10)</b> da un entero al azar entre 1 y 10, <b>ambos incluidos</b>. ¿Necesitas más módulos? Se instalan con <b>pip</b>."
+},
+{
+  world: 7, title: "Hijos con superpoderes", topic: "Herencia", diff: "⭐⭐⭐⭐",
+  story: "El Archivero crea nuevas criaturas sin empezar de cero: las clases <b>hijas</b> heredan todo de sus <b>padres</b> y mejoran lo que quieren.",
+  instructions: `Crea la clase <code>Perro</code> que <b>herede</b> de <code>Animal</code>, con un método <code>hablar</code> que devuelva <code>¡Guau!</code>.`,
+  type: "code",
+  starter: 'class Animal:\n    def hablar(self):\n        return "..."\n\n# Crea Perro que herede de Animal\n# y su hablar() devuelva "¡Guau!"\n',
+  output: 'Perro().hablar() → ¡Guau!',
+  check(code) {
+    if (!/class\s+Perro\s*\(\s*Animal\s*\)/i.test(code)) return { ok: false, msg: "❌ Para heredar: class Perro(Animal):" };
+    if (!/def\s+hablar\s*\(\s*self\s*\)/i.test(code)) return { ok: false, msg: "❌ Crea el método: def hablar(self):" };
+    if (!low(code).includes('return"¡guau!"')) return { ok: false, msg: "❌ Debe devolver exactamente: ¡Guau!" };
+    return { ok: true };
+  },
+  hint: 'class Perro(Animal):\n    def hablar(self):\n        return "¡Guau!"',
+  concept: "📚 <b>class Perro(Animal)</b> hereda todo de Animal. Si redefines un método (<b>override</b>), la hija usa el suyo: ¡Guau! en vez de ...."
+},
+{
+  world: 7, title: "La función infinita", topic: "*args", diff: "⭐⭐⭐⭐",
+  story: "El último tomo del Archivo enseña a crear funciones que aceptan <b>infinitos argumentos</b>. El secreto: <code>*args</code>.",
+  instructions: `Escribe la función <code>sumar_todo(*numeros)</code> que <b>devuelva</b> la suma de todos los números que reciba.`,
+  type: "code",
+  starter: '# Crea sumar_todo(*numeros) que devuelva la suma\n',
+  output: 'sumar_todo(1, 2, 3, 4) → 10',
+  check(code) {
+    if (!/def\s+sumar_todo\s*\(\s*\*\s*numeros\s*\)/i.test(code)) return { ok: false, msg: "❌ Crea: def sumar_todo(*numeros):  (¡con el asterisco!)" };
+    if (!/return/i.test(code)) return { ok: false, msg: "❌ Debe DEVOLVER la suma con return." };
+    if (!/sum\s*\(\s*numeros\s*\)/.test(code) && !/for\s+\w+\s+in\s+numeros/i.test(code)) return { ok: false, msg: "❌ Suma los números: usa sum(numeros) o un bucle for." };
+    return { ok: true };
+  },
+  hint: "def sumar_todo(*numeros):\n    return sum(numeros)",
+  concept: "📚 <b>*args</b> empaqueta infinitos argumentos en una <b>tupla</b>. Y existe su primo <b>**kwargs</b>, que los empaqueta en un <b>diccionario</b>. ¡Funciones sin límites!"
+},
+{
+  world: 7, title: "👾 JEFE FINAL: El Archivero Supremo", topic: "Todo junto", diff: "⭐⭐⭐⭐⭐",
+  story: "Todo lo que has aprendido te ha traído aquí: al corazón del Archivo Infinito. El <b>ARCHIVERO SUPREMO</b> 👾 ha corrompido el programa definitivo con <b>5 errores</b> de todo tipo: clases, archivos, indentación… Arréglalos todos y conviértete en leyenda. ¡Es tu batalla final! ⚔️",
+  instructions: `Corrige los <b>5 errores</b> del programa definitivo:<br>
+  1️⃣ A <code>class Guerrero</code> le faltan los <code>:</code><br>
+  2️⃣ El constructor no guarda el nombre en el objeto (<code>self</code>)<br>
+  3️⃣ El archivo se abre para leer, pero el programa necesita <b>escribir</b><br>
+  4️⃣ Hay una línea con la <b>indentación</b> mal (mira el <code>for</code> del archivo)<br>
+  5️⃣ Se intenta sumar texto + número (<code>TypeError</code>: usa <code>str()</code> o un f-string)`,
+  type: "code",
+  starter: '# ¡El Archivero Supremo ha corrompido el programa! Hay 5 errores. ⚔️\nclass Guerrero\n    def __init__(self, nombre):\n        nombre = nombre\n\nequipo = []\nfor nombre in ["Ada", "Pip"]:\n    equipo.append(Guerrero(nombre))\n\nwith open("equipo.txt", "r") as f:\n    for g in equipo:\n    f.write(g.nombre + "\\n")\n\nprint("Total: " + len(equipo))',
+  output: "Total: 2",
+  check(code) {
+    const n = norm(code);
+    if (!/class\s+Guerrero\s*(\(\s*\))?\s*:/.test(code))
+      return { ok: false, msg: "❌ Error 1 sin corregir: a la clase le faltan los dos puntos → class Guerrero:" };
+    if (!/self\s*\.\s*nombre\s*=\s*nombre/i.test(code))
+      return { ok: false, msg: "❌ Error 2 sin corregir: guarda el nombre en el objeto → self.nombre = nombre" };
+    if (!n.includes('open("equipo.txt","w")'))
+      return { ok: false, msg: '❌ Error 3 sin corregir: para escribir se usa el modo "w", no "r".' };
+    const wline = code.split("\n").find(l => /f\.write\s*\(/.test(l));
+    if (!wline) return { ok: false, msg: "❌ Falta la línea f.write(...)." };
+    if (!/^ {8,}f\.write/.test(wline))
+      return { ok: false, msg: "❌ Error 4 sin corregir: el f.write debe estar DENTRO del for (8 espacios)." };
+    const okStr = /str\s*\(\s*len\s*\(\s*equipo\s*\)\s*\)/.test(code);
+    const okF = /f["']/.test(code) && n.includes("{len(equipo)}");
+    if (!okStr && !okF)
+      return { ok: false, msg: "❌ Error 5 sin corregir: no se puede sumar texto + número. Usa str(len(equipo)) o un f-string." };
+    return { ok: true };
+  },
+  hint: 'Los 5 arreglos:\n• class Guerrero:\n• self.nombre = nombre\n• open("equipo.txt", "w")\n• indenta el f.write con 8 espacios\n• "Total: " + str(len(equipo))',
+  concept: "📚 ¡Los 5 arreglos! ① <b>class</b> con <b>:</b>. ② Guardar en <b>self.nombre</b>. ③ Abrir con modo <b>\"w\"</b> para escribir. ④ <b>Indentar</b> el write dentro del for. ⑤ Convertir con <b>str()</b> (o f-string). ¡Has vencido al Archivero Supremo! 🏆🐍"
+}
+];
+
+/* ==================== SOLUCIONES (botón de ayuda) ==================== */
+const SOLUTIONS = {
+  0: 'print("Hola, mundo")',
+  1: "# Crea la variable 'puntos' con valor 100\npuntos = 100",
+  3: 'nombre = "Ada"\nmensaje = f"Hola, {nombre}"',
+  4: 'edad = 18\nif edad >= 18:\n    print("Puedes entrar")',
+  7: 'n = 3\nwhile n > 0:\n    print(n)\n    n -= 1',
+  9: 'frutas = ["manzana", "banana"]\nfrutas.append("naranja")',
+  10: 'jugador = {"nombre": "Ada", "nivel": 5}\nprint(jugador["nivel"])',
+  12: 'def saludar(nombre):\n    return f"Hola, {nombre}"',
+  14: '# Crea la lista de cuadrados: [0, 1, 4, 9, 16]\ncuadrados = [x**2 for x in range(5)]',
+  15: '# ¡Errores corregidos!\nfor i in range(10):\n    if i % 2 == 0:\n        print(i)',
+  16: 'texto = "python mola"\nprint(texto.upper())',
+  21: 'def potencia(base, exp=2):\n    return base ** exp',
+  23: 'def suma_pares(numeros):\n    total = 0\n    for n in numeros:\n        if n % 2 == 0:\n            total += n\n    return total',
+  25: 'class Gato:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\ng = Gato("Luna")\nprint(g.nombre)',
+  26: 'class Coche:\n    def __init__(self, marca):\n        self.marca = marca\n    def arrancar(self):\n        return "Coche en marcha"\n\nmi_coche = Coche("Tesla")\nprint(mi_coche.arrancar())',
+  30: 'class Animal:\n    def hablar(self):\n        return "..."\n\nclass Perro(Animal):\n    def hablar(self):\n        return "¡Guau!"',
+  31: 'def sumar_todo(*numeros):\n    return sum(numeros)',
+  32: '# ¡Programa restaurado! ⚔️\nclass Guerrero:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\nequipo = []\nfor nombre in ["Ada", "Pip"]:\n    equipo.append(Guerrero(nombre))\n\nwith open("equipo.txt", "w") as f:\n    for g in equipo:\n        f.write(g.nombre + "\\n")\n\nprint("Total: " + str(len(equipo)))'
+};
+
+/* ==================== LOGROS ==================== */
+const ACHIEVEMENTS = [
+  { id: "first", icon: "🌱", name: "Primer paso", desc: "Completa tu primer nivel" },
+  { id: "streak3", icon: "🔥", name: "En racha", desc: "Consigue una racha de 3" },
+  { id: "streak5", icon: "☄️", name: "Imparable", desc: "Consigue una racha de 5" },
+  { id: "explorer", icon: "🗺", name: "Explorador", desc: "Completa el Mundo 1" },
+  { id: "bug", icon: "🐛", name: "Cazabugs", desc: "Supera el nivel ¡Depura el código!" },
+  { id: "rich", icon: "💰", name: "Mil puntos", desc: "Alcanza 1000 puntos" },
+  { id: "stars20", icon: "⭐", name: "Coleccionista", desc: "Consigue 20 estrellas" },
+  { id: "archivo", icon: "📦", name: "Archivero", desc: "Completa el Mundo 8" },
+  { id: "boss", icon: "👾", name: "Cazajefes", desc: "Vence al Archivero Supremo en el nivel final" },
+  { id: "hardcore", icon: "💀", name: "Hardcore", desc: "Completa todos los niveles sin pistas ni soluciones" },
+  { id: "master", icon: "🏆", name: "Maestro Python", desc: "Completa todos los niveles" }
+];
+
+/* ==================== ESTADO ==================== */
+let state = store.get("pyq_state", null) || { points: 0, streak: 0, bestStreak: 0, stars: {}, done: [], ach: [], clean: {} };
+if (!Array.isArray(state.ach)) state.ach = [];
+if (!state.clean || typeof state.clean !== "object") {
+  state.clean = {};
+  for (const k in (state.stars || {})) if (state.stars[k] === 3) state.clean[k] = true;
+}
+let current = 0, fails = 0, hintUsed = false, selectedQuiz = -1, orderAnswer = [], solvedWithHelp = false, levelStartTime = 0;
+
+/* ==================== UI helpers ==================== */
+const $ = id => document.getElementById(id);
+function showScreen(id) {
+  if (id === "screen-home") updateHome();
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+function save() { store.set("pyq_state", state); renderStats(); }
+function renderStats() {
+  $("stat-points").textContent = state.points;
+  $("stat-streak").textContent = state.streak;
+  $("stat-done").textContent = state.done.length;
+  $("stat-total").textContent = LEVELS.length;
+  $("btn-mute").textContent = muted ? "🔇" : "🔊";
+}
+function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+
+/* ==================== MAPA ==================== */
+function renderMap() {
+  const box = $("worlds"); box.innerHTML = "";
+  WORLDS.forEach((w, wi) => {
+    const h = document.createElement("div");
+    h.innerHTML = `<div class="world-title">${esc(w.name)}<small>${esc(w.desc)}</small></div>`;
+    box.appendChild(h);
+    const grid = document.createElement("div"); grid.className = "levels";
+    LEVELS.forEach((lv, i) => {
+      if (lv.world !== wi) return;
+      const locked = i > 0 && !state.done.includes(i - 1);
+      const done = state.done.includes(i);
+      const st = state.stars[i] || 0;
+      const b = document.createElement("button");
+      b.className = "level-btn" + (locked ? " locked" : "") + (done ? " done" : "") + (lv.title.includes("👾") ? " boss" : "");
+      b.innerHTML = `<div class="num">${locked ? "🔒" : (i + 1)}</div>
+        <div class="name">${esc(lv.title)}</div>
+        <div class="stars">${[1,2,3].map(k => `<span class="${k <= st ? "" : "off"}">★</span>`).join("")}${(state.clean && state.clean[i]) ? ' <span title="Completado sin ayudas">💀</span>' : ""}</div>`;
+      if (!locked) b.onclick = () => { sfx.click(); startLevel(i); };
+      grid.appendChild(b);
+    });
+    box.appendChild(grid);
+  });
+  const pct = Math.round(state.done.length / LEVELS.length * 100);
+  $("progress-bar").style.width = pct + "%";
+  $("progress-text").textContent = pct + "%";
+}
+
+/* ==================== JUEGO ==================== */
+function startLevel(i) {
+  current = i; fails = 0; hintUsed = false; selectedQuiz = -1; orderAnswer = []; solvedWithHelp = false; levelStartTime = Date.now();
+  const lv = LEVELS[i];
+  $("g-title").textContent = `Nivel ${i + 1}: ${lv.title}`;
+  $("g-topic").textContent = lv.topic;
+  $("g-diff").textContent = "Dificultad " + lv.diff;
+  document.querySelector("#screen-game .card").classList.toggle("boss", lv.title.includes("👾"));
+  $("g-story").innerHTML = lv.story;
+  $("g-instructions").innerHTML = lv.instructions;
+  $("g-hint").classList.remove("show"); $("g-hint").innerHTML = "";
+  $("btn-solution").style.display = "none";
+  setConsole("dim", "Consola lista. ¡Pulsa Ejecutar cuando termines! 🚀");
+
+  // reset areas
+  $("g-quiz-code-wrap").style.display = "none";
+  $("g-editor-wrap").style.display = "none";
+  $("g-options").style.display = "none";
+  $("g-order").style.display = "none";
+  $("btn-run").style.display = "";
+
+  if (lv.type === "code") {
+    $("g-editor-wrap").style.display = "";
+    $("g-editor").value = lv.starter;
+  } else if (lv.type === "quiz") {
+    $("g-quiz-code-wrap").style.display = "";
+    $("g-quiz-code").textContent = lv.quizCode;
+    const box = $("g-options"); box.innerHTML = ""; box.style.display = "";
+    lv.options.forEach((op, oi) => {
+      const b = document.createElement("button");
+      b.className = "option"; b.textContent = op;
+      b.onclick = () => {
+        if (b.disabled) return;
+        sfx.click(); selectedQuiz = oi;
+        box.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+        b.classList.add("selected");
+      };
+      box.appendChild(b);
+    });
+  } else if (lv.type === "order") {
+    $("g-order").style.display = "";
+    renderOrder();
+  }
+  showScreen("screen-game");
+}
+
+function renderOrder() {
+  const lv = LEVELS[current];
+  const pool = $("g-order-pool"), ans = $("g-order-answer");
+  pool.innerHTML = ""; ans.innerHTML = "";
+  if (!orderAnswer.length) ans.innerHTML = '<span class="order-hint">Tus líneas aparecerán aquí…</span>';
+  lv.shuffled.forEach(idx => {
+    if (orderAnswer.includes(idx)) return;
+    const b = document.createElement("button");
+    b.className = "order-line"; b.textContent = lv.lines[idx];
+    b.onclick = () => { sfx.click(); orderAnswer.push(idx); renderOrder(); };
+    pool.appendChild(b);
+  });
+  orderAnswer.forEach(idx => {
+    const b = document.createElement("button");
+    b.className = "order-line"; b.textContent = lv.lines[idx];
+    b.onclick = () => { sfx.click(); orderAnswer = orderAnswer.filter(x => x !== idx); renderOrder(); };
+    ans.appendChild(b);
+  });
+}
+
+function setConsole(cls, text) {
+  $("g-console").innerHTML = `<span class="${cls}">${esc(text)}</span>`;
+}
+
+/* ---------- Ejecutar ---------- */
+function runLevel() {
+  const lv = LEVELS[current];
+  if (lv.type === "code") {
+    const code = $("g-editor").value;
+    if (!code.trim()) { setConsole("err", "⚠️ Escribe algo de código primero."); sfx.bad(); return; }
+    const r = lv.check(code);
+    if (r.ok) onSuccess();
+    else {
+      fails++; state.streak = 0; save();
+      if (fails >= 3) $("btn-solution").style.display = "";
+      setConsole("err", r.msg + "\n💡 Fallos en este nivel: " + fails);
+      sfx.bad();
+    }
+  } else if (lv.type === "quiz") {
+    if (selectedQuiz < 0) { setConsole("err", "⚠️ Elige una respuesta primero."); sfx.bad(); return; }
+    const opts = $("g-options").querySelectorAll(".option");
+    if (selectedQuiz === lv.correct) {
+      opts[selectedQuiz].classList.add("correct");
+      opts.forEach(o => o.disabled = true);
+      onSuccess();
+    } else {
+      fails++; state.streak = 0; save();
+      if (fails >= 3) $("btn-solution").style.display = "";
+      opts[selectedQuiz].classList.add("wrong");
+      opts[selectedQuiz].disabled = true;
+      selectedQuiz = -1;
+      setConsole("err", `❌ ¡No! Esa no es. Inténtalo de nuevo. (Fallos: ${fails})`);
+      sfx.bad();
+    }
+  } else if (lv.type === "order") {
+    if (!orderAnswer.length) { setConsole("err", "⚠️ Coloca las líneas primero."); sfx.bad(); return; }
+    const correct = lv.lines.map((_, i) => i).join(",");
+    if (orderAnswer.join(",") === correct) onSuccess();
+    else {
+      fails++; state.streak = 0; save();
+      if (fails >= 3) $("btn-solution").style.display = "";
+      setConsole("err", `❌ Ese orden no funciona. Revisa la lógica y prueba otra vez. (Fallos: ${fails})`);
+      sfx.bad();
+    }
+  }
+}
+
+/* ---------- Éxito ---------- */
+function onSuccess() {
+  const lv = LEVELS[current];
+  const isFinal = current === LEVELS.length - 1;
+  setConsole("ok", "✅ ¡Correcto! Salida:\n");
+  $("g-console").innerHTML += `<span class="out">${esc(lv.output)}</span>`;
+
+  // puntos y estrellas
+  let gained = Math.max(50, 100 - fails * 10);
+  gained += Math.min(state.streak, 5) * 10;
+  if (hintUsed) gained = Math.max(30, gained - 25);
+  let stars = 3;
+  if (hintUsed || fails > 3) stars = 1;
+  else if (fails > 1) stars = 2;
+  if (solvedWithHelp) { gained = 20; stars = 1; }
+
+  const firstTime = !state.done.includes(current);
+  state.streak++;
+  state.bestStreak = Math.max(state.bestStreak, state.streak);
+  if (firstTime) {
+    state.points += gained;
+    state.done.push(current);
+    state.stars[current] = stars;
+  } else {
+    state.points += Math.floor(gained / 4); // repetir da menos
+    state.stars[current] = Math.max(state.stars[current] || 0, stars);
+  }
+  if (!hintUsed && !solvedWithHelp) state.clean[current] = true;
+  save();
+  showToast("✓ Progreso guardado");
+  checkAchievements();
+
+  if (isFinal && firstTime) { sfx.win(); confetti(250); }
+  else { sfx.good(); setTimeout(() => sfx.star(), 350); confetti(120); }
+
+  // modal
+  setTimeout(() => {
+    $("m-stars").innerHTML = [1,2,3].map(k =>
+      k <= stars ? `<span class="on">★</span>` : `<span class="off">★</span>`).join("");
+    $("m-title").textContent = isFinal ? "🏆 ¡HAS GANADO, MAESTRO PYTHON!" :
+      ["¡Nivel superado!", "¡Genial!", "¡Increíble!", "¡Sigue así!"][Math.floor(Math.random()*4)];
+    const secs = Math.max(1, Math.round((Date.now() - levelStartTime) / 1000));
+    $("m-pts").textContent = `+${firstTime ? gained : Math.floor(gained/4)} puntos  •  🔥 racha x${state.streak}  •  ⏱ ${secs}s${solvedWithHelp ? "  •  👁 con ayuda" : ""}`;
+    $("m-concept").innerHTML = lv.concept + (isFinal ?
+      `<br><br>🎓 Has completado los <b>${LEVELS.length} niveles</b> de PyQuest: variables, condicionales, bucles, listas, diccionarios, funciones, sets, debugging, clases, archivos y módulos… ¡Venciste al Archivero Supremo y dominas Python de verdad! 🏆` : "");
+    $("btn-modal-next").style.display = (current < LEVELS.length - 1) ? "" : "none";
+    $("modal-overlay").classList.add("show");
+  }, 700);
+}
+
+/* ==================== EVENTOS ==================== */
+/* ---------- Progreso: continuar, exportar, importar ---------- */
+function firstIncomplete() {
+  for (let i = 0; i < LEVELS.length; i++) if (!state.done.includes(i)) return i;
+  return -1;
+}
+function totalStars() { return Object.values(state.stars).reduce((a, b) => a + b, 0); }
+function updateHome() {
+  $("home-levels").textContent = LEVELS.length;
+  $("home-worlds").textContent = WORLDS.length;
+  const next = firstIncomplete(), play = $("btn-play");
+  if (next === -1) play.textContent = "🏆 ¡Completado! Jugar de nuevo";
+  else if (state.done.length === 0) play.textContent = "▶ Jugar";
+  else play.textContent = `▶ Continuar · Nivel ${next + 1}`;
+  const pct = Math.round(state.done.length / LEVELS.length * 100);
+  $("save-info").innerHTML = state.done.length === 0
+    ? "Aún no has empezado. ¡Tu aventura te espera! 🐍"
+    : (next === -1
+        ? `🏆 ¡Juego completado al 100%! · ⭐ ${totalStars()} estrellas · 🔥 mejor racha: ${state.bestStreak}`
+        : `Nivel ${next + 1} de ${LEVELS.length} · ${pct}% completado · ⭐ ${totalStars()} estrellas · 🔥 mejor racha: ${state.bestStreak}`);
+  renderAchievements();
+}
+$("btn-play").onclick = () => {
+  sfx.click();
+  const next = firstIncomplete();
+  if (next === -1 || state.done.length === 0) { renderMap(); showScreen("screen-map"); }
+  else startLevel(next);
+};
+$("btn-map").onclick = () => { sfx.click(); renderMap(); showScreen("screen-map"); };
+
+/* ---------- Modal de utilidades + toast ---------- */
+function openUtil(title, bodyHTML, buttons) {
+  $("u-title").textContent = title;
+  $("u-body").innerHTML = bodyHTML;
+  const bb = $("u-buttons"); bb.innerHTML = "";
+  buttons.forEach(b => {
+    const btn = document.createElement("button");
+    btn.className = "btn " + b.cls; btn.textContent = b.label;
+    btn.onclick = b.onClick;
+    bb.appendChild(btn);
+  });
+  $("util-overlay").classList.add("show");
+}
+function closeUtil() { $("util-overlay").classList.remove("show"); }
+let toastTimer = null;
+function showToast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+function encodeState() { return btoa(unescape(encodeURIComponent(JSON.stringify(state)))); }
+function decodeState(code) {
+  const s = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+  if (typeof s !== "object" || s === null || !Array.isArray(s.done) || typeof s.points !== "number") throw new Error("bad");
+  const clean = (s.clean && typeof s.clean === "object") ? s.clean : {};
+  if (!s.clean) for (const k in (s.stars || {})) if (s.stars[k] === 3) clean[k] = true;
+  return {
+    points: s.points || 0, streak: 0, bestStreak: s.bestStreak || 0,
+    stars: s.stars || {}, done: s.done.filter(n => Number.isInteger(n) && n >= 0 && n < LEVELS.length),
+    ach: Array.isArray(s.ach) ? s.ach : [],
+    clean: clean
+  };
+}
+$("btn-export").onclick = () => {
+  sfx.click();
+  openUtil("📤 Exportar progreso",
+    `<p style="color:var(--muted)">Copia este código y guárdalo donde quieras. Podrás restaurar tu progreso en cualquier navegador con «📥 Importar».</p><textarea id="u-code" readonly></textarea>`,
+    [
+      { label: "⧉ Copiar", cls: "btn-primary", onClick: () => {
+          const ta = $("u-code"); ta.select();
+          try { document.execCommand("copy"); } catch(e) {}
+          try { if (navigator.clipboard) navigator.clipboard.writeText(ta.value); } catch(e) {}
+          showToast("✓ Código copiado");
+        } },
+      { label: "Cerrar", cls: "btn-ghost", onClick: closeUtil }
+    ]);
+  $("u-code").value = encodeState();
+  setTimeout(() => $("u-code").select(), 50);
+};
+$("btn-import").onclick = () => {
+  sfx.click();
+  openUtil("📥 Importar progreso",
+    `<p style="color:var(--muted)">Pega tu código de progreso y pulsa Restaurar.</p><textarea id="u-code" placeholder="Pega aquí tu código…"></textarea>`,
+    [
+      { label: "Restaurar", cls: "btn-green", onClick: () => {
+          try {
+            state = decodeState($("u-code").value);
+            save(); updateHome(); closeUtil();
+            showToast("✓ Progreso restaurado"); sfx.good();
+          } catch(e) { showToast("❌ Código no válido"); sfx.bad(); }
+        } },
+      { label: "Cancelar", cls: "btn-ghost", onClick: closeUtil }
+    ]);
+};
+$("btn-reset").onclick = () => {
+  sfx.click();
+  openUtil("🗑 Reiniciar progreso",
+    `<p>¿Seguro que quieres borrar <b>todo</b> tu progreso? Esta acción no se puede deshacer.</p>`,
+    [
+      { label: "Sí, borrar todo", cls: "btn-red", onClick: () => {
+          state = { points: 0, streak: 0, bestStreak: 0, stars: {}, done: [], ach: [], clean: {} };
+          save(); updateHome(); closeUtil(); showToast("Progreso borrado");
+        } },
+      { label: "Cancelar", cls: "btn-ghost", onClick: closeUtil }
+    ]);
+};
+$("util-overlay").addEventListener("click", e => {
+  if (e.target.id === "util-overlay") closeUtil();
+});
+
+/* ---------- Logros ---------- */
+function checkAchievements() {
+  const unlock = (id) => {
+    if (state.ach.includes(id)) return;
+    state.ach.push(id);
+    const a = ACHIEVEMENTS.find(x => x.id === id);
+    save();
+    setTimeout(() => { showToast(`🏅 ¡Logro desbloqueado: ${a.icon} ${a.name}!`); sfx.star(); }, 1600);
+  };
+  if (state.done.length >= 1) unlock("first");
+  if (state.streak >= 3) unlock("streak3");
+  if (state.streak >= 5) unlock("streak5");
+  if ([0,1,2,3].every(i => state.done.includes(i))) unlock("explorer");
+  if (state.done.includes(15)) unlock("bug");
+  if ([28,29,30,31,32].every(i => state.done.includes(i))) unlock("archivo");
+  if (state.points >= 1000) unlock("rich");
+  if (totalStars() >= 20) unlock("stars20");
+  if (state.done.includes(LEVELS.length - 1)) unlock("boss");
+  if (Object.keys(state.clean).length >= LEVELS.length) unlock("hardcore");
+  if (state.done.length >= LEVELS.length) unlock("master");
+  renderAchievements();
+}
+function renderAchievements() {
+  const grid = $("ach-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  ACHIEVEMENTS.forEach(a => {
+    const un = state.ach.includes(a.id);
+    const d = document.createElement("div");
+    d.className = "ach" + (un ? "" : " locked");
+    d.innerHTML = `<div class="ach-icon">${un ? a.icon : "🔒"}</div><div class="ach-name">${esc(a.name)}</div><div class="ach-desc">${esc(a.desc)}</div>`;
+    grid.appendChild(d);
+  });
+  $("ach-count").textContent = `(${state.ach.length}/${ACHIEVEMENTS.length})`;
+}
+
+/* ---------- Solución (tras 3 fallos) ---------- */
+$("btn-solution").onclick = () => {
+  const lv = LEVELS[current];
+  solvedWithHelp = true;
+  sfx.click();
+  if (lv.type === "code" && SOLUTIONS[current]) {
+    $("g-editor").value = SOLUTIONS[current];
+    setConsole("ok", "👁 Solución mostrada en el editor. ¡Pulsa Ejecutar ▶ para completarlo!");
+  } else if (lv.type === "quiz") {
+    selectedQuiz = lv.correct;
+    const opts = $("g-options").querySelectorAll(".option");
+    opts.forEach(o => o.classList.remove("selected"));
+    opts[lv.correct].classList.add("selected");
+    setConsole("ok", "👁 Solución marcada. ¡Pulsa Ejecutar ▶ para completarlo!");
+  } else if (lv.type === "order") {
+    orderAnswer = lv.lines.map((_, i) => i);
+    renderOrder();
+    setConsole("ok", "👁 Solución ordenada. ¡Pulsa Ejecutar ▶ para completarlo!");
+  }
+  $("btn-solution").style.display = "none";
+  showToast("👁 Lo completarás con 1 estrella");
+};
+
+$("btn-how").onclick = () => {
+  sfx.click();
+  const c = $("how-card");
+  c.style.display = c.style.display === "none" ? "" : "none";
+};
+$("btn-home").onclick = () => { sfx.click(); showScreen("screen-home"); };
+$("logo").onclick = () => { sfx.click(); showScreen("screen-home"); };
+$("btn-back-map").onclick = () => { sfx.click(); renderMap(); showScreen("screen-map"); };
+$("btn-run").onclick = () => runLevel();
+$("btn-restart-level").onclick = () => { sfx.click(); startLevel(current); };
+$("btn-hint").onclick = () => {
+  const lv = LEVELS[current], box = $("g-hint");
+  if (!hintUsed) { hintUsed = true; sfx.click(); }
+  box.innerHTML = "💡 <b>Pista:</b><br>" + esc(lv.hint).replace(/\n/g, "<br>");
+  box.classList.add("show");
+};
+$("btn-mute").onclick = () => { muted = !muted; store.set("pyq_muted", muted); renderStats(); if(!muted) sfx.click(); };
+$("btn-modal-map").onclick = () => { sfx.click(); $("modal-overlay").classList.remove("show"); renderMap(); showScreen("screen-map"); };
+$("btn-modal-replay").onclick = () => { sfx.click(); $("modal-overlay").classList.remove("show"); startLevel(current); };
+$("btn-modal-next").onclick = () => { sfx.click(); $("modal-overlay").classList.remove("show"); startLevel(current + 1); };
+$("modal-overlay").addEventListener("click", e => {
+  if (e.target.id === "modal-overlay") { $("modal-overlay").classList.remove("show"); renderMap(); showScreen("screen-map"); }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.ctrlKey && $("screen-game").classList.contains("active")) runLevel();
+});
+// Tab en el editor = 2 espacios
+$("g-editor").addEventListener("keydown", e => {
+  if (e.key === "Tab") {
+    e.preventDefault();
+    const t = e.target, s = t.selectionStart;
+    t.value = t.value.slice(0, s) + "  " + t.value.slice(t.selectionEnd);
+    t.selectionStart = t.selectionEnd = s + 2;
+  }
+});
+
+renderStats();
+updateHome();
+</script>
+</body>
+</html>
