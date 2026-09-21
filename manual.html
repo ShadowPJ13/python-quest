@@ -933,9 +933,23 @@ main()</code></pre>
       <li>Te dará un <b>token</b> (algo como <code>123456:ABC-DEF...</code>). ¡Cópialo!</li>
       <li>Abre tu bot (te da un enlace <code>t.me/...</code>) y pulsa <b>Iniciar</b>.</li>
     </ol>
-    <div class="warn">⚠️ El token es la <b>contraseña</b> de tu bot: quien la tenga lo controla. No lo publiques ni lo subas a internet.</div>
+    <div class="warn">⚠️ El token es la <b>contraseña</b> de tu bot: quien la tenga lo controla. No lo publiques, no lo subas a GitHub ni lo compartas en capturas.</div>
+    <div class="tip">🔐 <b>Profesional: guarda el token en un archivo <code>.env</code></b> en vez de pegarlo en el código. Así nunca se te escapa al compartir o subir tu programa:<br><br>
+    1️⃣ Crea un archivo llamado <code>.env</code> junto a <code>mi_bot.py</code> con tu token dentro:<br>
+    <code>TELEGRAM_TOKEN=123456:ABC-DEF...</code><br><br>
+    2️⃣ Crea un archivo <code>.gitignore</code> con una línea que ponga <code>.env</code> (Git ignorará tu secreto para siempre).<br><br>
+    3️⃣ Instala el lector de <code>.env</code> y úsalo así en tu código:</div>
+    <pre class="code"><code>pip install pyTelegramBotAPI python-dotenv</code></pre>
+    <pre class="code"><code>import os
+from dotenv import load_dotenv
+import telebot
+
+load_dotenv()  # lee el archivo .env
+TOKEN = os.getenv("TELEGRAM_TOKEN")
+bot = telebot.TeleBot(TOKEN)</code></pre>
+    <div class="tip">💡 Si <code>TOKEN</code> te sale vacío (<code>None</code>), tu <code>.env</code> está mal escrito o en otra carpeta: debe estar junto a <code>mi_bot.py</code>. Los otros talleres (app de tareas y web Flask) no usan secretos: <b>no necesitan <code>.env</code></b>.</div>
     <h3>📦 2. Instala la librería</h3>
-    <p>En una terminal escribe: <code>pip install pyTelegramBotAPI</code>. En tu código se importa como <code>telebot</code>.</p>
+    <p>En una terminal escribe: <code>pip install pyTelegramBotAPI python-dotenv</code>. En tu código <code>telebot</code> es el bot y <code>dotenv</code> lee tu secreto del <code>.env</code>.</p>
     <h3>🧠 3. La idea: decoradores que escuchan</h3>
     <p>Tu bot es un programa que <b>pregunta sin parar</b> «¿hay mensajes nuevos?» (<code>bot.infinity_polling()</code>). Con <b>decoradores</b> (esas líneas con <code>@</code>) dices qué función responde a cada cosa:</p>
     <pre class="code"><code>import telebot
@@ -1037,7 +1051,7 @@ print("Bot en marcha… 🤖")
 bot.infinity_polling()</code></pre>
     <h3>▶️ Cómo ponerlo en marcha</h3>
     <ol>
-      <li>Pega tu token en <code>TOKEN = "..."</code> y guarda como <code>mi_bot.py</code>.</li>
+      <li>Guarda tu token en el archivo <code>.env</code> (<code>TELEGRAM_TOKEN=...</code>) como se explica arriba — o, solo para probar rápido, pégalo en <code>TOKEN = "..."</code> — y guarda como <code>mi_bot.py</code>. Para compartir o subir tu código, usa siempre el <code>.env</code>.</li>
       <li>Ejecuta <code>python mi_bot.py</code> y <b>deja la terminal abierta</b> (si la cierras, el bot se duerme 😴).</li>
       <li>Habla con tu bot en Telegram: <code>/start</code>, <code>/dado</code>, <code>/suma 5 3</code>…</li>
     </ol>

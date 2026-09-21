@@ -250,10 +250,11 @@
       <li>¡Listo! Te dará un <b>token</b> parecido a <code>123456:ABC-DEF...</code>. Cópialo, lo necesitarás en el código.</li>
       <li>Abre tu bot (te da un enlace <code>t.me/...</code>) y pulsa <b>Iniciar</b>.</li>
     </ol>
-    <div class="warn">⚠️ El token es la <b>contraseña</b> de tu bot: quien la tenga puede controlarlo. No la publiques en internet.</div>
+    <div class="warn">⚠️ El token es la <b>contraseña</b> de tu bot: quien la tenga puede controlarlo. No la publiques en internet ni la subas a GitHub.</div>
+    <div class="tip">🔐 <b>Profesional: guarda el token en un archivo <code>.env</code></b> en vez de pegarlo en el código. Crea un archivo <code>.env</code> junto a <code>mi_bot.py</code> con <code>TELEGRAM_TOKEN=123456:ABC...</code>, añade un <code>.gitignore</code> con la línea <code>.env</code>, e instala <code>pip install pyTelegramBotAPI python-dotenv</code>. En el código: <code>from dotenv import load_dotenv</code>, <code>load_dotenv()</code> y <code>TOKEN = os.getenv("TELEGRAM_TOKEN")</code> (necesitarás <code>import os</code>). Tienes el ejemplo completo en el <a href="manual.html#cap-bot" style="color:var(--py-yellow); font-weight:700">capítulo 18 del manual 📖</a>. Los talleres de app y web no usan secretos: no necesitan <code>.env</code>.</div>
     <h3>📦 2. Instala la librería</h3>
     <p>Abre una terminal y escribe:</p>
-    <pre class="code"><code>pip install pyTelegramBotAPI</code></pre>
+    <pre class="code"><code>pip install pyTelegramBotAPI python-dotenv</code></pre>
     <h3>🐍 3. El esqueleto</h3>
     <p>Crea <code>mi_bot.py</code> con esto (pon tu token de verdad). Si lo ejecutas, no hará nada aún… ¡pero se conectará sin errores!</p>
     <pre class="code"><code>import telebot
@@ -488,7 +489,7 @@ print("Bot en marcha… 🤖")
 bot.infinity_polling()</code></pre>
     <h3>▶️ Ponlo en marcha</h3>
     <ol>
-      <li>Pega tu token en <code>TOKEN = "..."</code>.</li>
+      <li>Pon tu token en el archivo <code>.env</code> (<code>TELEGRAM_TOKEN=...</code>) — o, solo para probar rápido, en <code>TOKEN = "..."</code>.</li>
       <li>Ejecuta <code>python mi_bot.py</code> y <b>deja la terminal abierta</b> (si la cierras, el bot se duerme 😴).</li>
       <li>Habla con tu bot en Telegram desde el móvil. ¡Funciona de verdad! 📱</li>
     </ol>
