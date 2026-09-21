@@ -332,14 +332,31 @@ $("contact-form").addEventListener("submit", async (e) => {
       })
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
+    // OJO: FormSubmit devuelve HTTP 200 incluso cuando RECHAZA el envío.
+    // El éxito real viene en el cuerpo: {success:"true"} (texto, no boolean).
+    let data = null;
+    try { data = await res.json(); } catch(_) { data = null; }
+    const ok = data && String(data.success).toLowerCase() === "true";
+    const motivo = (data && data.message) ? String(data.message) : "respuesta inesperada del servidor";
+    const esActivacion = /activat/i.test(motivo); // "This form needs Activation...": el mensaje queda en cola y llega al activar
+    if (!ok && !esActivacion) throw new Error(motivo);
     $("contact-form").querySelectorAll("input, select, textarea, .btn-submit").forEach(el => {
       if (el.id !== "f-honey") el.style.display = "none";
     });
     document.querySelector(".counter").style.display = "none";
+    if (esActivacion) {
+      showErr(`⏳ Primer envío recibido.<br><br>💡 <b>Revisa tu Gmail (y spam):</b> FormSubmit te ha enviado un correo de <b>activación</b>. Haz clic en <b>Activate</b> y tu mensaje llegará. Solo hay que hacerlo una vez.`);
+      return;
+    }
     $("form-ok").classList.add("show");
     showToast("✅ ¡Mensaje enviado!");
   } catch(err) {
-    showErr(`❌ No se pudo enviar (¿sin conexión?). Prueba de nuevo o <a href="mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("[PyQuest] " + asunto)}&body=${encodeURIComponent(mensaje + "\n\n— " + nombre + " (" + email + ")")}">escríbeme directamente por email</a>.`);
+    const motivo = (err && err.message) ? err.message : "error desconocido";
+    let pista = "";
+    if (/web server|HTML files/i.test(motivo)) {
+      pista = "<br><br>💡 <b>¿Abriste esta página con doble clic desde tu PC?</b> FormSubmit rechaza los envíos desde archivos locales. Prueba desde tu web de <b>GitHub Pages</b> (https://…) o con un servidor local (<code>python -m http.server</code>).";
+    }
+    showErr(`❌ No se pudo enviar. <small>Motivo: ${motivo}</small>${pista}<br><br>Prueba de nuevo o <a href="mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("[PyQuest] " + asunto)}&body=${encodeURIComponent(mensaje + "\n\n— " + nombre + " (" + email + ")")}">escríbeme directamente por email</a>.`);
   } finally {
     btn.disabled = false;
     btn.textContent = "📨 Enviar mensaje";
