@@ -11,10 +11,10 @@ talleres guiados y página de contacto. Sin instalar nada: funciona en cualquier
 |---|---|
 | `index.html` | 🎮 El juego: 33 niveles, 8 mundos, 11 logros, guardado automático |
 | `manual.html` | 📖 Manual de Python en 22 capítulos (de `print()` a Flask) |
-| `taller.html` | 🛠️ Taller: crea tu app de tareas con `tkinter` |
-| `taller-bot.html` | 🤖 Taller: crea tu bot de Discord |
+| `taller.html` | 🛠️ Taller: crea tu app de tareas de consola (`mis_tareas.py` con guardado en archivo) |
+| `taller-bot.html` | 🤖 Taller: crea tu bot de Telegram con `pyTelegramBotAPI` |
 | `taller-web.html` | 🌐 Taller: crea tu primera web con Flask |
-| `contacto.html` | ✉️ Formulario de contacto (funciona con Formspree) |
+| `contacto.html` | ✉️ Formulario de contacto (funciona con FormSubmit) |
 
 ## 🚀 Ver online
 

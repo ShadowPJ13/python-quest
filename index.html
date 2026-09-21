@@ -271,12 +271,15 @@
       <div class="btn-row" style="justify-content:center; margin-top:18px">
         <button class="btn btn-primary" id="btn-play">▶ Jugar</button>
         <button class="btn btn-ghost" id="btn-map">🗺 Mapa</button>
-        <a class="btn btn-green" href="manual.html" style="text-decoration:none">📖 Manual de Python</a>
-        <a class="btn btn-green" href="taller.html" style="text-decoration:none">🔨 Taller: tu primera app</a>
-        <a class="btn btn-green" href="taller-bot.html" style="text-decoration:none">🤖 Taller: tu primer bot</a>
-        <a class="btn btn-green" href="taller-web.html" style="text-decoration:none">🌐 Taller: tu primera web</a>
-        <a class="btn btn-ghost" href="contacto.html" style="text-decoration:none">✉️ Contacto</a>
         <button class="btn btn-ghost" id="btn-how">❓ Cómo jugar</button>
+        <a class="btn btn-green" href="manual.html" style="text-decoration:none">📖 Manual de Python</a>
+        <a class="btn btn-ghost" href="contacto.html" style="text-decoration:none">✉️ Contacto</a>
+      </div>
+      <p style="text-align:center; color:var(--muted); font-size:.9rem; margin:16px 0 8px">🔨 Talleres prácticos: construye proyectos de verdad</p>
+      <div class="btn-row" style="justify-content:center; margin-top:0">
+        <a class="btn btn-ghost" href="taller.html" style="text-decoration:none">🔨 Taller: tu primera app</a>
+        <a class="btn btn-ghost" href="taller-bot.html" style="text-decoration:none">🤖 Taller: tu primer bot</a>
+        <a class="btn btn-ghost" href="taller-web.html" style="text-decoration:none">🌐 Taller: tu primera web</a>
       </div>
     </div>
     <div class="card" id="how-card" style="display:none">
@@ -534,15 +537,17 @@ const LEVELS = [
   story: "Un guardián bloquea el puente del bosque. Solo deja pasar a quien escriba correctamente la condición de entrada.",
   instructions: `Completa la condición: si <code>edad</code> es <b>mayor o igual a 18</b>, se muestra "Puedes entrar".<br>📝 Escribe la condición dentro del <code>if</code> (no olvides los <code>:</code>).`,
   type: "code",
-  starter: 'edad = 18\nif :\n    print("Puedes entrar")',
+  starter: 'edad = 18\nif ___:\n    print("Puedes entrar")',
   output: "Puedes entrar",
   check(code) {
     const n = norm(code);
     if (!/if/i.test(code)) return { ok: false, msg: "❌ Necesitas la palabra clave if." };
+    if (n.includes("___")) return { ok: false, msg: "❌ Sustituye ___ por la condición: if edad >= 18:" };
     if (n.includes("ifedad>=18:") || n.includes("if18<=edad:")) return { ok: true };
     if (n.includes("ifedad>18:") || n.includes("ifedad=>18:")) return { ok: false, msg: "❌ ¡Casi! Debe ser MAYOR O IGUAL: >= (el 18 también entra)." };
     if (!n.includes("ifedad") && !n.includes("if18")) return { ok: false, msg: "❌ La condición debe comparar la variable edad con 18." };
-    if (!/:$/.test(code.trim().split("\n")[1] || "") && !n.includes(":")) return { ok: false, msg: "❌ No olvides los dos puntos : al final del if." };
+    const ifLine = (code.split("\n").find(l => /if/i.test(l)) || "").trim();
+    if (!/:$/.test(ifLine)) return { ok: false, msg: "❌ No olvides los dos puntos : al final del if." };
     return { ok: false, msg: "❌ Debe quedar:  if edad >= 18:" };
   },
   hint: "Mayor o igual se escribe >=. Y el if siempre termina con dos puntos :",
@@ -810,8 +815,7 @@ const LEVELS = [
     if (!/def\s+potencia\s*\(/i.test(code)) return { ok: false, msg: "❌ Crea la función: def potencia(base, exp=2):" };
     if (!n.includes("exp=2")) return { ok: false, msg: "❌ El parámetro exp debe valer 2 por defecto: def potencia(base, exp=2):" };
     if (!/return/i.test(code)) return { ok: false, msg: "❌ La función debe DEVOLVER el resultado con return." };
-    if (!code.includes("**")) return { ok: false, msg: "❌ Usa el operador potencia: base ** exp" };
-    if (!/base/i.test(code) || !/exp/i.test(code)) return { ok: false, msg: "❌ Usa los parámetros base y exp en el cálculo." };
+    if (!/base\s*\*\*\s*exp/.test(code)) return { ok: false, msg: "❌ Devuelve base elevado a exp: return base ** exp (no vale un número fijo)." };
     return { ok: true };
   },
   hint: "def potencia(base, exp=2):\n    return base ** exp",
@@ -978,7 +982,8 @@ const LEVELS = [
       return { ok: false, msg: '❌ Error 3 sin corregir: para escribir se usa el modo "w", no "r".' };
     const wline = code.split("\n").find(l => /f\.write\s*\(/.test(l));
     if (!wline) return { ok: false, msg: "❌ Falta la línea f.write(...)." };
-    if (!/^ {8,}f\.write/.test(wline))
+    const indent = (wline.match(/^(\s*)/) || ["", ""])[1].replace(/\t/g, "    ");
+    if (indent.length < 8)
       return { ok: false, msg: "❌ Error 4 sin corregir: el f.write debe estar DENTRO del for (8 espacios)." };
     const okStr = /str\s*\(\s*len\s*\(\s*equipo\s*\)\s*\)/.test(code);
     const okF = /f["']/.test(code) && n.includes("{len(equipo)}");

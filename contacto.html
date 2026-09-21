@@ -332,14 +332,6 @@ $("contact-form").addEventListener("submit", async (e) => {
       })
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
-    // OJO: FormSubmit devuelve HTTP 200 incluso cuando RECHAZA el envío.
-    // El éxito real viene en el cuerpo: {success:"true"} (texto, no boolean).
-    let data = null;
-    try { data = await res.json(); } catch(_) { data = null; }
-    const ok = data && String(data.success).toLowerCase() === "true";
-    const motivo = (data && data.message) ? String(data.message) : "respuesta inesperada del servidor";
-    const esActivacion = /activat/i.test(motivo); // "This form needs Activation...": el mensaje queda en cola y llega al activar
-    if (!ok && !esActivacion) throw new Error(motivo);
     $("contact-form").querySelectorAll("input, select, textarea, .btn-submit").forEach(el => {
       if (el.id !== "f-honey") el.style.display = "none";
     });
@@ -347,12 +339,7 @@ $("contact-form").addEventListener("submit", async (e) => {
     $("form-ok").classList.add("show");
     showToast("✅ ¡Mensaje enviado!");
   } catch(err) {
-    const motivo = (err && err.message) ? err.message : "error desconocido";
-    let pista = "";
-    if (/web server|HTML files/i.test(motivo)) {
-      pista = "<br><br>💡 <b>¿Abriste esta página con doble clic desde tu PC?</b> FormSubmit rechaza los envíos desde archivos locales. Prueba desde tu web de <b>GitHub Pages</b> (https://…) o con un servidor local (<code>python -m http.server</code>).";
-    }
-    showErr(`❌ No se pudo enviar. <small>Motivo: ${motivo}</small>${pista}<br><br>Prueba de nuevo o <a href="mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("[PyQuest] " + asunto)}&body=${encodeURIComponent(mensaje + "\n\n— " + nombre + " (" + email + ")")}">escríbeme directamente por email</a>.`);
+    showErr(`❌ No se pudo enviar (¿sin conexión?). Prueba de nuevo o <a href="mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("[PyQuest] " + asunto)}&body=${encodeURIComponent(mensaje + "\n\n— " + nombre + " (" + email + ")")}">escríbeme directamente por email</a>.`);
   } finally {
     btn.disabled = false;
     btn.textContent = "📨 Enviar mensaje";
@@ -367,5 +354,5 @@ $("btn-again").onclick = () => {
   hideStatus();
 };
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3e46b0d9e6100b2',t:'MTc4OTk0NDkzMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
