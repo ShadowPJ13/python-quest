@@ -33,12 +33,6 @@ python -m http.server 8000
 # abrir http://localhost:8000
 ```
 
-## 🔄 Cómo actualizar la web (para el autor)
-
-1. Edita los archivos `.html` en tu PC.
-2. Súbelos al repositorio (arrastrar a GitHub web o `git push`).
-3. GitHub Pages republica solo en 1–2 minutos. Listo.
-
 ## ✉️ Contacto
 
 - GitHub: [@ShadowPJ13](https://github.com/ShadowPJ13)
